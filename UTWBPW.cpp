@@ -139,7 +139,7 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
 		}
 	};
 
-	TIMERSTART(wavefront, 1000, "ms", output_file);
+	TIMERSTART(wavefront, 1000, "ms", output_file, "Time: ");
 	// create both the barrier and threads pool
 	std::vector<std::thread> threads;
 	std::cout << "Using " << threadNum << " threads" << std::endl;
@@ -168,7 +168,7 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
 	// join each thread at the end
 	for (auto& thread: threads)
 		thread.join();
-    TIMERSTOP(wavefront, 1000, "ms", output_file);
+    TIMERSTOP(wavefront, 1000, "ms", output_file, "Time: ");
 	output_file << computeChecksum(M, N) << std::endl;
 	std::cout << computeChecksum(M, N) << std::endl;
 }
