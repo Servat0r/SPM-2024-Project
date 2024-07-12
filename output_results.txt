@@ -1,0 +1,360 @@
+Parameters: N = 2000 threadNum = 1 policy = 0 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 2837.58 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 0 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 2811.99 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 0 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 2991.73 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 0 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 2888.02 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 1 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 3071.03 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 1 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 2888.42 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 1 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 2927.57 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 1 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 2920.16 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 2 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 2912.73 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 2 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 2907.91 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 2 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 2878.58 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 2 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 2816.07 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 1 chunkSize = 8
+# elapsed time (wavefront): 3013.42 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 1 chunkSize = 16
+# elapsed time (wavefront): 2927.29 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 1 chunkSize = 32
+# elapsed time (wavefront): 3020.91 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 4 chunkSize = 8
+# elapsed time (wavefront): 2873.31 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 4 chunkSize = 16
+# elapsed time (wavefront): 3009.7 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 4 chunkSize = 32
+# elapsed time (wavefront): 2941.92 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 8 chunkSize = 8
+# elapsed time (wavefront): 2877.87 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 8 chunkSize = 16
+# elapsed time (wavefront): 2892.05 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 8 chunkSize = 32
+# elapsed time (wavefront): 2858.3 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 16 chunkSize = 8
+# elapsed time (wavefront): 2912.2 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 16 chunkSize = 16
+# elapsed time (wavefront): 2829.42 (ms)
+435143
+Parameters: N = 2000 threadNum = 1 policy = 3 tileSize = 16 chunkSize = 32
+# elapsed time (wavefront): 2912.13 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 0 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 2861.12 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 0 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 2875.08 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 0 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 2885.69 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 0 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 2918.56 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 1 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 1627.84 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 1 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 1497.51 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 1 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 1513.79 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 1 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 1528.1 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 2 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 1689.81 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 2 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 1503.48 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 2 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 1523.85 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 2 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 1546.28 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 1 chunkSize = 8
+# elapsed time (wavefront): 4271.01 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 1 chunkSize = 16
+# elapsed time (wavefront): 3043.92 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 1 chunkSize = 32
+# elapsed time (wavefront): 2346.9 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 4 chunkSize = 8
+# elapsed time (wavefront): 1723.8 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 4 chunkSize = 16
+# elapsed time (wavefront): 1678.7 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 4 chunkSize = 32
+# elapsed time (wavefront): 1753.06 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 8 chunkSize = 8
+# elapsed time (wavefront): 1625.94 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 8 chunkSize = 16
+# elapsed time (wavefront): 1714.47 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 8 chunkSize = 32
+# elapsed time (wavefront): 1952.12 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 16 chunkSize = 8
+# elapsed time (wavefront): 1716.29 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 16 chunkSize = 16
+# elapsed time (wavefront): 1911.25 (ms)
+435143
+Parameters: N = 2000 threadNum = 2 policy = 3 tileSize = 16 chunkSize = 32
+# elapsed time (wavefront): 2259.31 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 0 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 2825.16 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 0 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 2897.65 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 0 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 2868.31 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 0 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 2922.57 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 1 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 933.64 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 1 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 832.128 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 1 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 847.946 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 1 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 953.503 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 2 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 968.384 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 2 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 828.881 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 2 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 795.332 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 2 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 810.505 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 1 chunkSize = 8
+# elapsed time (wavefront): 4105.97 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 1 chunkSize = 16
+# elapsed time (wavefront): 2561.18 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 1 chunkSize = 32
+# elapsed time (wavefront): 1870.51 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 4 chunkSize = 8
+# elapsed time (wavefront): 1102.76 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 4 chunkSize = 16
+# elapsed time (wavefront): 1062.4 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 4 chunkSize = 32
+# elapsed time (wavefront): 1266.8 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 8 chunkSize = 8
+# elapsed time (wavefront): 1000.89 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 8 chunkSize = 16
+# elapsed time (wavefront): 1164.75 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 8 chunkSize = 32
+# elapsed time (wavefront): 1481 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 16 chunkSize = 8
+# elapsed time (wavefront): 1191.03 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 16 chunkSize = 16
+# elapsed time (wavefront): 1599.27 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 16 chunkSize = 32
+# elapsed time (wavefront): 2164.18 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 0 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 2999.08 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 0 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 3113.17 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 0 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 3159.43 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 0 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 2854.9 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 1 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 1484.95 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 1 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 1236.45 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 1 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 851.252 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 1 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 973.995 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 2 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 1075.55 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 2 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 578.803 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 2 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 602.408 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 2 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 567.424 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 1 chunkSize = 8
+# elapsed time (wavefront): 3837.64 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 1 chunkSize = 16
+# elapsed time (wavefront): 2581.49 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 1 chunkSize = 32
+# elapsed time (wavefront): 1604.93 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 4 chunkSize = 8
+# elapsed time (wavefront): 835.981 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 4 chunkSize = 16
+# elapsed time (wavefront): 830.004 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 4 chunkSize = 32
+# elapsed time (wavefront): 982.801 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 8 chunkSize = 8
+# elapsed time (wavefront): 784.429 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 8 chunkSize = 16
+# elapsed time (wavefront): 1023.53 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 8 chunkSize = 32
+# elapsed time (wavefront): 1481.6 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 16 chunkSize = 8
+# elapsed time (wavefront): 953.335 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 16 chunkSize = 16
+# elapsed time (wavefront): 1317.48 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 16 chunkSize = 32
+# elapsed time (wavefront): 2168.05 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 0 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 2798.75 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 0 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 2768.32 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 0 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 2846.36 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 0 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 2687.75 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 1 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 1133.81 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 1 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 739.921 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 1 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 697.841 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 1 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 726.509 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 2 tileSize = 1 chunkSize = 1
+# elapsed time (wavefront): 1344.87 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 2 tileSize = 4 chunkSize = 1
+# elapsed time (wavefront): 650.039 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 2 tileSize = 8 chunkSize = 1
+# elapsed time (wavefront): 540.476 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 2 tileSize = 16 chunkSize = 1
+# elapsed time (wavefront): 533.973 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 1 chunkSize = 8
+# elapsed time (wavefront): 3642.43 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 1 chunkSize = 16
+# elapsed time (wavefront): 2194.43 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 1 chunkSize = 32
+# elapsed time (wavefront): 1613.75 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 4 chunkSize = 8
+# elapsed time (wavefront): 964.086 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 4 chunkSize = 16
+# elapsed time (wavefront): 849.689 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 4 chunkSize = 32
+# elapsed time (wavefront): 1030.42 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 8 chunkSize = 8
+# elapsed time (wavefront): 746.916 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 8 chunkSize = 16
+# elapsed time (wavefront): 960.181 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 8 chunkSize = 32
+# elapsed time (wavefront): 1361.97 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 16 chunkSize = 8
+# elapsed time (wavefront): 981.163 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 16 chunkSize = 16
+# elapsed time (wavefront): 1453.6 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 16 chunkSize = 32
+# elapsed time (wavefront): 2027.13 (ms)
+435143

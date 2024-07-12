@@ -42,13 +42,20 @@ void sequentialWavefront(std::vector<double> &M, const uint64_t &N) {
 	}
 }
 
-void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize, uint64_t tileSize){
+void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
+	uint64_t tileSize, const std::string& filename){
 
 	// Create the barrier
 	std::barrier syncPoint(threadNum, [](){ });
 
 	// allocate the matrix
 	std::vector<double> M(N*N, 0.0);
+
+	std::ofstream output_file;
+	output_file.open(filename, std::ios_base::app);
+
+	output_file << "Parameters: N = " << N << " threadNum = " << threadNum << " policy = " << policy 
+		<< " tileSize = " << tileSize << " chunkSize = " << chunkSize << std::endl;
 
 	// init function
 	auto init=[&]() {
@@ -125,8 +132,6 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize, ui
 					minY = minX + K;
 					maxX = std::min(minX + tileSize - 1, N);
 					maxY = std::min(minY + tileSize - 1, N);
-					//std::cout << "Working with minX = " << minX << " minY = " << minY <<
-					//	" maxX = " << maxX << " maxY = " << maxY << " K = " << K << std::endl;
 					tileWork(minX, minY, maxX, maxY, M, N, K);
 				}
 				syncPoint.arrive_and_wait();
@@ -134,7 +139,7 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize, ui
 		}
 	};
 
-	TIMERSTART(wavefront, 1000, "ms");
+	TIMERSTART(wavefront, 1000, "ms", output_file);
 	// create both the barrier and threads pool
 	std::vector<std::thread> threads;
 	std::cout << "Using " << threadNum << " threads" << std::endl;
@@ -163,54 +168,31 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize, ui
 	// join each thread at the end
 	for (auto& thread: threads)
 		thread.join();
-    TIMERSTOP(wavefront, 1000, "ms");
-
-	std::ostringstream oss;
-	oss << "output_" << N << "_" << threadNum << "_" << policy << "_" << chunkSize << ".bin";
-	const std::string filename = oss.str();
-	char toWrite;
-	std::cout << "Write Matrix To File (y/n)? ";
-	std::cin >> toWrite;
-	if (toWrite == 'y') writeMatrixToFile(M, N, filename);
-	std::cout << "Display Matrix (y/n)? ";
-	std::cin >> toWrite;
-	if (toWrite == 'y') displayMatrix(M, N);
+    TIMERSTOP(wavefront, 1000, "ms", output_file);
+	output_file << computeChecksum(M, N) << std::endl;
 	std::cout << computeChecksum(M, N) << std::endl;
 }
 
 
 int main(int argc, char *argv[]) {
-	uint64_t N = 512;    	// default size of the matrix (NxN)
-	uint64_t threadNum = 8;	// default number of threads to spawn
-	uint64_t policy = 0;    // default thread scheduling policy
-	// 0 => sequential, 1 => (tiled-)block, 2 => (tiled-)cyclic, 3 => (tiled-)block cyclic,
-	uint64_t chunkSize = 64;// default block size for (tiled)-block cyclic policy
-	uint64_t tileSize = 16; // default tile size for tiled policies
-	
-	if (argc != 1 && argc > 6) {
-		std::printf("use: %s N [T] [P [S C]]\n", argv[0]);
-		std::printf("     N size of the square matrix\n");
-		std::printf("     T number of threads\n");
-		std::printf("     P policy (0 = sequential, 1 = block, 2 = cyclic, 3 = block cyclic)\n");
-		std::printf("     S tileSize\n");
-		std::printf("     C chunksize if P == 3\n");		
-		return -1;
-	}
-	if (argc > 1) {
-		N = std::stol(argv[1]);
-		if (argc >= 3){
-			threadNum = std::stol(argv[2]);
-		}
-		if (argc >= 4){
-			policy = std::stol(argv[3]);
-		}
-		if (argc >= 5){
-			tileSize = std::stol(argv[4]);
-		}
-		if (argc >= 6){
-			chunkSize = std::stol(argv[5]);
+	//std::vector<uint64_t> sizes = {2000, 4000, 6000, 8000, 10000};
+	//std::vector<uint64_t> threadNums = {1, 2, 4, 6, 8, 10, 12, 14, 16};
+	std::vector<uint64_t> sizes = {2000};
+	std::vector<uint64_t> threadNums = {1, 2, 4, 8, 16};
+	std::vector<uint64_t> policies = {0, 1, 2, 3};
+	std::vector<uint64_t> tileSizes = {1, 4, 8, 16};
+	std::vector<uint64_t> chunkSizes = {8, 16, 32};
+	std::string filename = "output_results.txt";
+	if (argc > 1) filename = argv[1];
+	for (auto& N : sizes){
+		for (auto& threadNum : threadNums){
+			for (auto& policy : policies){
+				for (auto& tileSize : tileSizes){
+					if (policy < 3) run(N, threadNum, policy, 1, tileSize, filename);
+					else for (auto& chunkSize : chunkSizes) run(N, threadNum, policy, chunkSize, tileSize, filename);
+				}
+			}
 		}
 	}
-	run(N, threadNum, policy, chunkSize, tileSize);
     return 0;
 }

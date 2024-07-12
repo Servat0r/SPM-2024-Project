@@ -5,7 +5,6 @@
 #include <fstream>
 #include <vector>
 #include <cassert>
-//#include <openssl/sha.h>
 
 void displayMatrix(std::vector<double> &M, const uint64_t &N){
 	for (uint64_t i = 0; i < N; i++){
