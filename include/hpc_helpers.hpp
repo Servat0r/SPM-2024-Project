@@ -10,11 +10,11 @@
 #endif
 
 #ifndef __CUDACC__
-    #define TIMERSTART(label, unit, unitstr, outputStream, initString)                     \
+    #define TIMERSTART(label, unit, unitstr, outputStream, initString)         \
         std::chrono::time_point<std::chrono::system_clock> a##label, b##label; \
         a##label = std::chrono::system_clock::now();
 #else
-    #define TIMERSTART(label, unit, unitstr, outputStream, initString)                     \
+    #define TIMERSTART(label, unit, unitstr, outputStream, initString)         \
         cudaEvent_t start##label, stop##label;                                 \
         float time##label;                                                     \
         cudaEventCreate(&start##label);                                        \
@@ -27,23 +27,23 @@
         b##label = std::chrono::system_clock::now();                           \
         std::chrono::duration<double> delta##label = b##label-a##label;        \
         auto elapsedTime = unit * delta##label.count();                        \
-        if (initString == NULL || initString.empty())                          \
+        if (initString == NULL)                                                \
             outputStream << "# elapsed time (" << #label << "): "              \
                   << elapsedTime  << " (" << unitstr << ")" << std::endl;      \
         else                                                                   \
             outputStream << initString << elapsedTime                          \
-                  << " (" << unitstr << ")" << std::endl;                      \
+                  << " (" << unitstr << ")" << std::endl;                      
 #else
     #define TIMERSTOP(label, unit, unitstr, outputStream, initString)              \
             cudaEventRecord(stop##label, 0);                                       \
             cudaEventSynchronize(stop##label);                                     \
             cudaEventElapsedTime(&time##label, start##label, stop##label);         \
-            if (initString == NULL || initString.empty())                          \
+            if (initString == NULL)                                                \
                 outputStream << "TIMING: " << 0.001 * unit * time##label << " " << \
                 unitstr << "(" << #label << ")" << std::endl;                      \
             else                                                                   \
                 outputStream << 0.001 * unit * time##label << " " <<               \
-                unitstr << initString << std::endl;                                \
+                unitstr << initString << std::endl;                                
 #endif
 
 

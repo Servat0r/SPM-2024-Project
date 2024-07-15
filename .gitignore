@@ -1,4 +1,8 @@
 
 *.out
+*.o
 UTWBPW
 UTWBPWBlockBased
+cereal/*
+fastflow/*
+openmpi-5.0.3/*

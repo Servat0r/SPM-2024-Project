@@ -1,7 +1,7 @@
 CXX                = g++ -std=c++20
 OPTFLAGS	   = -O3 -march=native
 CXXFLAGS          += -Wall 
-INCLUDES	   = -I. -I./include
+INCLUDES	   = -I. -I./include -I./fastflow -I./cereal -I./openmpi-5.0.3
 LIBS               = -pthread -latomic
 SOURCES            = $(wildcard *.cpp)
 TARGET             = $(SOURCES:.cpp=)
@@ -9,7 +9,7 @@ TARGET             = $(SOURCES:.cpp=)
 .PHONY: all clean cleanall 
 
 %: %.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o $@ $< $(LIBS) #-DDEBUGMODE
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o $@.o $< $(LIBS) #-DDEBUGMODE
 
 all: $(TARGET)
 

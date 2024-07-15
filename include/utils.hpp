@@ -6,10 +6,36 @@
 #include <vector>
 #include <cassert>
 
-void displayMatrix(std::vector<double> &M, const uint64_t &N){
+// Generic function to print the elements of a std::vector
+template <typename T>
+void printVector(const std::vector<T>& vec, const char* formatString) {
+    if (formatString == NULL){
+        for (const auto& elem : vec) {
+            std::cout << elem << " ";
+        }
+    }
+    else {
+        for (const auto& elem : vec) {
+            std::printf(formatString, elem);
+        }
+    }
+    std::cout << std::endl;
+}
+
+template <typename T>
+void displayVectorMatrix(std::vector<T> &M, const uint64_t &N){
 	for (uint64_t i = 0; i < N; i++){
 		for (uint64_t j = 0; j < N; j++)
 			std::printf("%.4f  ", M[i*N+j]);
+		std::cout << std::endl;
+	}
+}
+
+template <typename T>
+void display2DMatrix(std::vector<T> &M, const uint64_t &N){
+	for (uint64_t i = 0; i < N; i++){
+		for (uint64_t j = 0; j < N; j++)
+			std::cout << M[i][j] << " ";
 		std::cout << std::endl;
 	}
 }
