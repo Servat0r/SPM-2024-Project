@@ -7,11 +7,11 @@
 #include <cassert>
 #include <sstream>
 #include <string>
-#include <mutex>
 #include <ff/ff.hpp>
 #include <ff/parallel_for.hpp>
 #include "hpc_helpers.hpp"
 #include "utils.hpp"
+#include "mpi.h"
 
 using namespace ff;
 
@@ -21,7 +21,6 @@ void work(uint64_t k, uint64_t i, std::vector<double> &M, const uint64_t &N){
 	uint64_t i2 = i + k;
 	for (uint64_t h = 0; h < k; h++) sum += M[i*N + (j1 + h)] * M[(i2 - h)*N + (i+k)];
 	sum = std::cbrt(sum);
-	//std::cout << sum << std::endl;
 	M[i*N + (i+k)] = sum;
 }
 
@@ -47,18 +46,9 @@ void sequentialWavefront(std::vector<double> &M, const uint64_t &N) {
 
 void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
 	uint64_t tileSize, const std::string& filename, uint64_t maxworkers){
-
-	// Create the barrier
-	std::barrier syncPoint(threadNum, [](){ });
-
+	
 	// allocate the matrix
 	std::vector<double> M(N*N, 0.0);
-
-	std::ofstream output_file;
-	output_file.open(filename, std::ios_base::app);
-
-	output_file << "Parameters: N = " << N << " threadNum = " << threadNum << " policy = " << policy 
-		<< " tileSize = " << tileSize << " chunkSize = " << chunkSize << std::endl;
 
 	// init function
 	auto init=[&]() {
@@ -68,6 +58,13 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
 	};
 	
 	init();
+	
+	// ------------
+	std::ofstream output_file;
+	output_file.open(filename, std::ios_base::app);
+
+	output_file << "Parameters: N = " << N << " threadNum = " << threadNum << " policy = " << policy 
+		<< " tileSize = " << tileSize << " chunkSize = " << chunkSize << std::endl;
 
 	auto task = [&](std::vector<double> &M, const uint64_t &N, uint64_t nworkers, long chunk, uint64_t tileSize){
 		ParallelFor name(maxworkers);
@@ -124,13 +121,29 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
 int main(int argc, char *argv[]) {
 	//std::vector<uint64_t> threadNums = {1, 2, 4, 6, 8, 10, 12, 14, 16};
 	// Total #comb = 3(sizes) x (1 x 1 + 3 x 2 x 4 + 3 x 1 x 3 x 4) = 3 x (1 + 24 + 36) = 3 x 61 = 183
-	std::vector<uint64_t> sizes = {4000}; //, 4000, 6000}; //, 8000, 10000};
+	std::vector<uint64_t> sizes = {3000}; //, 4000, 6000}; //, 8000, 10000};
 	std::vector<uint64_t> threadNums = {1, 4, 8, 16}; //{1, 2, 4, 8, 16};
 	std::vector<uint64_t> policies = {0, 1, 2, 3};
 	std::vector<uint64_t> tileSizes = {1, 4, 8, 16};
 	std::vector<uint64_t> chunkSizes = {32, 64, 128};
-	std::string filename = "output_results_ff.txt";
+	std::string filename = "output_results_mpi.txt";
 	if (argc > 1) filename = argv[1];
+
+	int myid, numprocs, namelen;
+	char processor_name[MPI_MAX_PROCESSOR_NAME];
+	double t0, t1;
+	struct timeval wt1, wt0;
+    uint64_t N = std::stol(argv[1]);
+	
+	// MPI_Wtime cannot be used here
+	gettimeofday(&wt0, NULL);
+	MPI_Init(&argc, &argv);	
+	t0 = MPI_Wtime();
+	
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs); 
+	MPI_Comm_rank(MPI_COMM_WORLD, &myid); 
+	MPI_Get_processor_name(processor_name, &namelen);
+	
 	for (auto& N : sizes){
 		for (auto& threadNum : threadNums){
 			if (threadNum <= 1){ run(N, threadNum, 0, 1, 1, filename, 16); }
@@ -138,8 +151,8 @@ int main(int argc, char *argv[]) {
 				for (auto& policy : policies){
 					if (policy > 0){
 						for (auto& tileSize : tileSizes){
-							if (policy < 3) run(N, threadNum, policy, 1, tileSize, filename, 16);
-							else for (auto& chunkSize : chunkSizes) run(N, threadNum, policy, chunkSize, tileSize, filename, 16);
+							if (policy < 3) run(N, threadNum, policy, 1, tileSize, filename, 16, numprocs, myid);
+							else for (auto& chunkSize : chunkSizes) run(N, threadNum, policy, chunkSize, tileSize, filename, 16, numprocs, myid);
 						}
 					}
 				}

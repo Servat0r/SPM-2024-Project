@@ -6,3 +6,5 @@ UTWBPWBlockBased
 cereal/*
 fastflow/*
 openmpi-5.0.3/*
+gnuplot-palettes/*
+sciplot/*

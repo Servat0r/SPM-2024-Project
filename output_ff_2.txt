@@ -1,0 +1,366 @@
+Parameters: N = 2000 threadNum = 1 policy = 0 tileSize = 1 chunkSize = 1
+Time: 2753.47 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 1 tileSize = 1 chunkSize = 1
+Time: 995.575 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 1 tileSize = 4 chunkSize = 1
+Time: 888.284 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 1 tileSize = 8 chunkSize = 1
+Time: 869.246 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 1 tileSize = 16 chunkSize = 1
+Time: 1008.06 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 2 tileSize = 1 chunkSize = 1
+Time: 1036.25 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 2 tileSize = 4 chunkSize = 1
+Time: 840.204 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 2 tileSize = 8 chunkSize = 1
+Time: 832.6 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 2 tileSize = 16 chunkSize = 1
+Time: 831.153 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 1 chunkSize = 32
+Time: 987.247 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 1 chunkSize = 64
+Time: 1161.39 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 1 chunkSize = 128
+Time: 1005.47 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 4 chunkSize = 32
+Time: 959.084 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 4 chunkSize = 64
+Time: 869.658 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 4 chunkSize = 128
+Time: 882.815 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 8 chunkSize = 32
+Time: 845.488 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 8 chunkSize = 64
+Time: 825.174 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 8 chunkSize = 128
+Time: 853.828 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 16 chunkSize = 32
+Time: 860.68 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 16 chunkSize = 64
+Time: 1004.8 (ms)
+435143
+Parameters: N = 2000 threadNum = 4 policy = 3 tileSize = 16 chunkSize = 128
+Time: 844.527 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 1 tileSize = 1 chunkSize = 1
+Time: 939.356 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 1 tileSize = 4 chunkSize = 1
+Time: 681.605 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 1 tileSize = 8 chunkSize = 1
+Time: 674.06 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 1 tileSize = 16 chunkSize = 1
+Time: 768.522 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 2 tileSize = 1 chunkSize = 1
+Time: 958.892 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 2 tileSize = 4 chunkSize = 1
+Time: 719.639 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 2 tileSize = 8 chunkSize = 1
+Time: 845.644 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 2 tileSize = 16 chunkSize = 1
+Time: 793.919 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 1 chunkSize = 32
+Time: 927.088 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 1 chunkSize = 64
+Time: 1028.6 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 1 chunkSize = 128
+Time: 1328.43 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 4 chunkSize = 32
+Time: 837.964 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 4 chunkSize = 64
+Time: 1209.03 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 4 chunkSize = 128
+Time: 1011.08 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 8 chunkSize = 32
+Time: 815.021 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 8 chunkSize = 64
+Time: 847.612 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 8 chunkSize = 128
+Time: 842.05 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 16 chunkSize = 32
+Time: 835.574 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 16 chunkSize = 64
+Time: 646.476 (ms)
+435143
+Parameters: N = 2000 threadNum = 8 policy = 3 tileSize = 16 chunkSize = 128
+Time: 695.837 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 1 tileSize = 1 chunkSize = 1
+Time: 1099.65 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 1 tileSize = 4 chunkSize = 1
+Time: 606.193 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 1 tileSize = 8 chunkSize = 1
+Time: 597.163 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 1 tileSize = 16 chunkSize = 1
+Time: 856.162 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 2 tileSize = 1 chunkSize = 1
+Time: 1034.48 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 2 tileSize = 4 chunkSize = 1
+Time: 585.577 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 2 tileSize = 8 chunkSize = 1
+Time: 630.692 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 2 tileSize = 16 chunkSize = 1
+Time: 661.271 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 1 chunkSize = 32
+Time: 1113.69 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 1 chunkSize = 64
+Time: 1110.68 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 1 chunkSize = 128
+Time: 1058.54 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 4 chunkSize = 32
+Time: 599.561 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 4 chunkSize = 64
+Time: 611.877 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 4 chunkSize = 128
+Time: 612.35 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 8 chunkSize = 32
+Time: 693.997 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 8 chunkSize = 64
+Time: 636.287 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 8 chunkSize = 128
+Time: 588.303 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 16 chunkSize = 32
+Time: 707.824 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 16 chunkSize = 64
+Time: 572.986 (ms)
+435143
+Parameters: N = 2000 threadNum = 16 policy = 3 tileSize = 16 chunkSize = 128
+Time: 617.055 (ms)
+435143
+Parameters: N = 3000 threadNum = 1 policy = 0 tileSize = 1 chunkSize = 1
+Time: 15188.6 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 1 tileSize = 1 chunkSize = 1
+Time: 4776.36 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 1 tileSize = 4 chunkSize = 1
+Time: 4211.03 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 1 tileSize = 8 chunkSize = 1
+Time: 4200.22 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 1 tileSize = 16 chunkSize = 1
+Time: 4371.25 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 2 tileSize = 1 chunkSize = 1
+Time: 4822.09 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 2 tileSize = 4 chunkSize = 1
+Time: 4094.73 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 2 tileSize = 8 chunkSize = 1
+Time: 4237.01 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 2 tileSize = 16 chunkSize = 1
+Time: 4495.84 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 1 chunkSize = 32
+Time: 5187.16 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 1 chunkSize = 64
+Time: 4955.4 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 1 chunkSize = 128
+Time: 4875.19 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 4 chunkSize = 32
+Time: 4243.21 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 4 chunkSize = 64
+Time: 4302.46 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 4 chunkSize = 128
+Time: 4065.36 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 8 chunkSize = 32
+Time: 4182.11 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 8 chunkSize = 64
+Time: 4254.39 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 8 chunkSize = 128
+Time: 4330.71 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 16 chunkSize = 32
+Time: 4199.25 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 16 chunkSize = 64
+Time: 4462.24 (ms)
+974046
+Parameters: N = 3000 threadNum = 4 policy = 3 tileSize = 16 chunkSize = 128
+Time: 4096 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 1 tileSize = 1 chunkSize = 1
+Time: 4241.13 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 1 tileSize = 4 chunkSize = 1
+Time: 3401.1 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 1 tileSize = 8 chunkSize = 1
+Time: 2981.22 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 1 tileSize = 16 chunkSize = 1
+Time: 3519.47 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 2 tileSize = 1 chunkSize = 1
+Time: 3840.84 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 2 tileSize = 4 chunkSize = 1
+Time: 2867.65 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 2 tileSize = 8 chunkSize = 1
+Time: 3730.78 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 2 tileSize = 16 chunkSize = 1
+Time: 3114.72 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 1 chunkSize = 32
+Time: 3582.88 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 1 chunkSize = 64
+Time: 3891.11 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 1 chunkSize = 128
+Time: 3868.59 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 4 chunkSize = 32
+Time: 3256.77 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 4 chunkSize = 64
+Time: 2987.73 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 4 chunkSize = 128
+Time: 3301.51 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 8 chunkSize = 32
+Time: 3116.33 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 8 chunkSize = 64
+Time: 3234.38 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 8 chunkSize = 128
+Time: 3279.06 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 16 chunkSize = 32
+Time: 3183.09 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 16 chunkSize = 64
+Time: 3409.62 (ms)
+974046
+Parameters: N = 3000 threadNum = 8 policy = 3 tileSize = 16 chunkSize = 128
+Time: 3271.45 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 1 tileSize = 1 chunkSize = 1
+Time: 4011.14 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 1 tileSize = 4 chunkSize = 1
+Time: 3368.34 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 1 tileSize = 8 chunkSize = 1
+Time: 3309.42 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 1 tileSize = 16 chunkSize = 1
+Time: 3250.62 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 2 tileSize = 1 chunkSize = 1
+Time: 4156.04 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 2 tileSize = 4 chunkSize = 1
+Time: 3373.62 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 2 tileSize = 8 chunkSize = 1
+Time: 3036.12 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 2 tileSize = 16 chunkSize = 1
+Time: 3430.2 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 1 chunkSize = 32
+Time: 4144.05 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 1 chunkSize = 64
+Time: 4280.02 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 1 chunkSize = 128
+Time: 4172.25 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 4 chunkSize = 32
+Time: 3577.25 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 4 chunkSize = 64
+Time: 3552.05 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 4 chunkSize = 128
+Time: 3123.57 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 8 chunkSize = 32
+Time: 3457 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 8 chunkSize = 64
+Time: 3283.49 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 8 chunkSize = 128
+Time: 3088.6 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 16 chunkSize = 32
+Time: 3582.66 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 16 chunkSize = 64
+Time: 3427.5 (ms)
+974046
+Parameters: N = 3000 threadNum = 16 policy = 3 tileSize = 16 chunkSize = 128
+Time: 3702.3 (ms)
+974046
