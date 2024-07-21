@@ -8,7 +8,7 @@
 
 // Generic function to print the elements of a std::vector
 template <typename T>
-void printVector(const std::vector<T>& vec, const char* formatString) {
+void printVector(const std::vector<T>& vec, const char* formatString = NULL) {
     if (formatString == NULL){
         for (const auto& elem : vec) {
             std::cout << elem << " ";

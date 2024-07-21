@@ -35,16 +35,61 @@ double work(uint64_t k, uint64_t i, std::vector<double> &M, const uint64_t &N){
 	return sum;
 }
 
-void tileWork(uint64_t minX, uint64_t minY, uint64_t maxX, uint64_t maxY,
-	std::vector<double> &M, const uint64_t &N, uint64_t K){
+uint64_t tileWork(uint64_t minX, uint64_t minY, uint64_t maxX, uint64_t maxY,
+	std::vector<double> &M, const uint64_t &N, uint64_t K, std::vector<double> &computedData, uint64_t pos){
+	double value;
 	for (int i = maxX; i >= (int)minX; i--){
 		for (uint64_t j = minY; j <= maxY; j++){
 			//std::cout << "i = " << i << " j = " << j << std::endl;
 			int k = K - (i - minX) + (j - minY);
 			//std::cout << "\tWorking with i = " << i << " j = " << j << " k = " << k << " N = " << N << std::endl;
-			if (k >= 1){ work((uint64_t)k, (uint64_t)i, M, N); }
+			if (k >= 1){
+				value = work((uint64_t)k, (uint64_t)i, M, N);
+				computedData[pos] = value;
+				pos++;
+			}
 		}
 	}
+	return pos;
+}
+
+void unpackData(
+	std::vector<double> &M, const uint64_t &N,
+	uint64_t start, uint64_t end, uint64_t tileSize,
+	std::vector<double> &computedData, uint64_t K
+){
+	uint64_t pos = 0;
+	uint64_t minX, minY, maxX, maxY;
+	for (uint64_t i = start; i < end; i++) {
+		minX = tileSize * i;
+		minY = minX + K;
+		maxX = std::min(minX + tileSize - 1, N - 1);
+		maxY = std::min(minY + tileSize - 1, N - 1);
+		for (int l = maxX; l >= (int)minX; l--){
+			for (uint64_t j = minY; j <= maxY; j++){
+				//std::cout << "i = " << i << " j = " << j << std::endl;
+				int k = K - (l - minX) + (j - minY);
+				//std::cout << "\tWorking with i = " << i << " j = " << j << " k = " << k << " N = " << N << std::endl;
+				if (k >= 1){
+					M[l*N + (l+k)] = computedData[pos];
+					pos++;
+				}
+			}
+		}
+	}
+}
+
+uint64_t getTotalDiagonalSize(uint64_t numTiles, uint64_t tileSize, uint64_t N, uint64_t K){
+	uint64_t minX, minY, maxX, maxY;
+	uint64_t totalDiagonalSize = 0;
+	for (uint64_t i = 0; i < numTiles; i++){
+		minX = tileSize * i;
+		minY = minX + K;
+		maxX = std::min(minX + tileSize, N);
+		maxY = std::min(minY + tileSize, N);
+		totalDiagonalSize += (maxX - minX) * (maxY - minY);
+	}
+	return totalDiagonalSize;
 }
 
 void sequentialWavefront(std::vector<double> &M, const uint64_t &N) {
@@ -57,18 +102,17 @@ void sequentialWavefront(std::vector<double> &M, const uint64_t &N) {
 
 
 int main(int argc, char* argv[]){
-	bool debug = argc == 1;
-    uint64_t tileSize = 4;
+	bool debug = false;
     uint64_t chunkSize = 8;
     uint64_t policy = 1;
 	std::string filename = "output_results_mpi.txt";
-	if (argc > 1) filename = argv[1];
     
 	int myid, nworkers, namelen;
 	char processor_name[MPI_MAX_PROCESSOR_NAME];
 	double t0, t1;
 	struct timeval wt1, wt0;
-    uint64_t N = std::stol(argv[1]);
+    uint64_t N = argc > 1 ? std::stol(argv[1]) : 2000;
+    uint64_t tileSize = argc > 2 ? std::stol(argv[2]) : 1;
 	
 	// MPI_Wtime cannot be used here
 	gettimeofday(&wt0, NULL);
@@ -79,7 +123,7 @@ int main(int argc, char* argv[]){
 	MPI_Comm_rank(MPI_COMM_WORLD, &myid);
 	MPI_Get_processor_name(processor_name, &namelen);
 	
-		// allocate the matrix
+	// allocate the matrix
 	std::vector<double> M(N*N, 0.0);
 
 	// init function
@@ -91,49 +135,69 @@ int main(int argc, char* argv[]){
 	
 	init();
 
-	auto workerTask = [&](std::vector<double> &M, const uint64_t &N, uint64_t nworkers, long chunk, int myid){
+	auto workerTask = [&](std::vector<double> &M, const uint64_t &N, uint64_t nworkers, long tileSize, int myid){
 		if (debug) std::cout << "Worker " << myid << " start" << std::endl;
-		for (uint64_t K = 1; K < N; K++){
-			if (debug) std::cout << "Worker with K = " << K << std::endl;
-			uint64_t baseBlockSize = (N - K) / nworkers;
+		for (uint64_t K = 0; K < N; K += tileSize){
+			if (debug) std::cout << "Worker " << myid << " with K = " << K << std::endl;
+			uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
+			uint64_t baseBlockSize = numTiles / nworkers;
 			if (baseBlockSize == 0) baseBlockSize = 1;
 			uint64_t start = (myid - 1) * baseBlockSize; // start block
 			uint64_t end; // end block
 			if (myid + 1 < (int)nworkers)
-				end = std::min(myid * baseBlockSize, N - K);
+				end = std::min(myid * baseBlockSize, numTiles);
 			else
-				end = N - K;
+				end = numTiles;
 			if (start < end){
-				std::vector<double> computedData(end - start + 1, 0.0);
-				for (uint64_t i = start; i < end; i++){
-					double value = work(K, i, M, N);
-					computedData[i - start] = value;
+				uint64_t minX, minY, maxX, maxY;
+				uint64_t actualTileSize = 0;
+				for (uint64_t i = start; i < end; i++) {
+					minX = tileSize * i;
+					minY = minX + K;
+					maxX = std::min(minX + tileSize, N);
+					maxY = std::min(minY + tileSize, N);
+					if ((minX <= maxX) && (minY <= maxY)){
+						if (K > 0) actualTileSize += (maxX - minX) * (maxY - minY);
+						else actualTileSize += (maxX - minX) * (maxY - minY - 1) / 2;
+					}
 				}
-				if (debug) std::cout << "Worker " << myid << " sending data to server\n";
+				std::vector<double> computedData(actualTileSize, 0.0);
+				uint64_t pos = 0;
+				for (uint64_t i = start; i < end; i++){
+					minX = tileSize * i;
+					minY = minX + K;
+					maxX = std::min(minX + tileSize - 1, N - 1);
+					maxY = std::min(minY + tileSize - 1, N - 1);
+					pos = tileWork(minX, minY, maxX, maxY, M, N, K, computedData, pos);
+				}
+				if (debug) std::cout << "Worker " << myid << " sending " << actualTileSize << " data to server\n";
 				MPI_Send(
-					computedData.data(), (int)(end - start), MPI_DOUBLE, 0,
+					computedData.data(), (int)actualTileSize, MPI_DOUBLE, 0,
 					K * (2 * nworkers) + myid, MPI_COMM_WORLD
 				);
 				if (debug) std::cout << "Worker " << myid << " sent data to server\n";
 			}
-			std::vector<double> diagonalData(N - K + 1, 0.0);
-			if (debug) std::cout << "Worker " << myid << " receiving data from server\n";
-			MPI_Recv(
-				diagonalData.data(), (int)(N - K), MPI_DOUBLE, 0,
+			uint64_t totalDiagonalSize = getTotalDiagonalSize(numTiles, tileSize, N, K);
+			std::vector<double> diagonalData(totalDiagonalSize + 1, 0.0);
+			if (debug) std::cout << "Worker " << myid << " receiving " << totalDiagonalSize << " data from server\n";
+			if (totalDiagonalSize > 0) MPI_Recv(
+				diagonalData.data(), (int)(N*N), MPI_DOUBLE, 0,
 				K * (2 * nworkers) + nworkers + myid,
 				MPI_COMM_WORLD, MPI_STATUS_IGNORE
 			);
 			if (debug) std::cout << "Worker " << myid << " received data from server\n";
-			for (uint64_t i = 0; i < N - K; i++){ M[i*N + (i+K)] = diagonalData[i]; }
+			unpackData(M, N, 0, numTiles, tileSize, diagonalData, K);
 		}
 	};
 
 	auto serverTask = [&](std::vector<double> &M, const uint64_t &N, uint64_t nworkers, long chunk){
 		if (debug) std::cout << "Server start" << std::endl;
-		for (uint64_t K = 1; K < N; K++){
+		for (uint64_t K = 0; K < N; K += tileSize){
 			if (debug) std::cout << "Server with K = " << K << std::endl;
-			uint64_t baseBlockSize = (N - K) / nworkers;
+			uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
+			uint64_t baseBlockSize = numTiles / nworkers;
 			if (baseBlockSize == 0) baseBlockSize = 1;
+			std::vector<double> diagonalData;
 			for (int myid = 1; myid < (int)nworkers; myid++){
 				uint64_t start = (myid - 1) * baseBlockSize; // start block
 				uint64_t end; // end block
@@ -142,22 +206,35 @@ int main(int argc, char* argv[]){
 				else
 					end = N - K;
 				if (start < end){
-					std::vector<double> computedData(end - start + 1, 0.0);
-					if (debug) std::cout << "Receiving data from worker " << myid << " with K = " << K << std::endl;
-					MPI_Recv(
-						computedData.data(), (int)(end - start), MPI_DOUBLE, myid,
+					uint64_t minX, minY, maxX, maxY;
+					uint64_t actualTileSize = 0;
+					for (uint64_t i = start; i < end; i++) {
+						minX = tileSize * i;
+						minY = minX + K;
+						maxX = std::min(minX + tileSize, N);
+						maxY = std::min(minY + tileSize, N);
+						if ((minX <= maxX) && (minY <= maxY)){
+							if (K > 0) actualTileSize += (maxX - minX) * (maxY - minY);
+							else actualTileSize += (maxX - minX) * (maxY - minY - 1) / 2;
+						}
+					}
+					if (debug) std::cout << "Receiving " << actualTileSize << " data from worker " << myid << " with K = " << K << std::endl;
+					std::vector<double> computedData(actualTileSize, 0.0);
+					if (actualTileSize > 0) MPI_Recv(
+						computedData.data(), (int)actualTileSize, MPI_DOUBLE, myid,
 						K * (2 * nworkers) + myid, MPI_COMM_WORLD, MPI_STATUS_IGNORE
 					);
+					if (debug) { std::cout << "Computed Data Received: "; }
 					if (debug) std::cout << "Received data from worker " << myid << std::endl;
-					for (uint64_t i = start; i < end; i++) M[i*N + (i+K)] = computedData[i - start];
+					unpackData(M, N, start, end, tileSize, computedData, K);
+					diagonalData.insert(diagonalData.end(), computedData.begin(), computedData.end());
 				}
 			}
-			std::vector<double> diagonalData(N - K + 1, 0.0);
-			for (uint64_t i = 0; i < N - K; i++) diagonalData[i] = M[i*N + (i+K)];
+			uint64_t totalDiagonalSize = diagonalData.size();
 			for (int myid = 1; myid < (int)nworkers; myid++){
-				if (debug) std::cout << "Sending data to worker " << myid << std::endl;
+				if (debug) std::cout << "Sending " << totalDiagonalSize << " data to worker " << myid << "\nDiagonal Data Received: ";
 				MPI_Send(
-					diagonalData.data(), (int)(N - K), MPI_DOUBLE, myid,
+					diagonalData.data(), (int)(totalDiagonalSize), MPI_DOUBLE, myid,
 					K * (2 * nworkers) + nworkers + myid, MPI_COMM_WORLD
 				);
 				if (debug) std::cout << "Sent data to worker " << myid << std::endl;
@@ -170,10 +247,9 @@ int main(int argc, char* argv[]){
 		output_file.open(filename, std::ios_base::app);
 		output_file << "Parameters: N = " << N << " nworkers = " << nworkers << " policy = " << policy 
 			<< " tileSize = " << tileSize << " chunkSize = " << chunkSize << std::endl;
-		
-		serverTask(M, N, nworkers, 0);
+		serverTask(M, N, nworkers, tileSize);
 	} else {
-		workerTask(M, N, nworkers, 0, myid);
+		workerTask(M, N, nworkers, tileSize, myid);
 	}
 
 	t1 = MPI_Wtime();
