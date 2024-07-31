@@ -1,5 +1,7 @@
 #include <iostream>
 #include <barrier>
+#include <sys/time.h>
+#include <unistd.h>
 #include <syncstream>
 #include <vector>
 #include <thread>
@@ -7,33 +9,87 @@
 #include <cassert>
 #include <sstream>
 #include <string>
-#include <ff/ff.hpp>
-#include <ff/parallel_for.hpp>
 #include "hpc_helpers.hpp"
 #include "utils.hpp"
 #include "mpi.h"
 
-using namespace ff;
+double diffmsec(const struct timeval & a, 
+				const struct timeval & b) {
+    long sec  = (a.tv_sec  - b.tv_sec);
+    long usec = (a.tv_usec - b.tv_usec);
+    
+    if(usec < 0) {
+        --sec;
+        usec += 1000000;
+    }
+    return ((double)(sec*1000)+ (double)usec/1000.0);
+}
 
-void work(uint64_t k, uint64_t i, std::vector<double> &M, const uint64_t &N){
+double work(uint64_t k, uint64_t i, std::vector<double> &M, const uint64_t &N){
+	/* Work for a single matrix cell */
 	double sum = 0.0;
 	uint64_t j1 = i;
 	uint64_t i2 = i + k;
 	for (uint64_t h = 0; h < k; h++) sum += M[i*N + (j1 + h)] * M[(i2 - h)*N + (i+k)];
 	sum = std::cbrt(sum);
 	M[i*N + (i+k)] = sum;
+	return sum;
 }
 
-void tileWork(uint64_t minX, uint64_t minY, uint64_t maxX, uint64_t maxY,
-	std::vector<double> &M, const uint64_t &N, uint64_t K){
+uint64_t tileWork(uint64_t minX, uint64_t minY, uint64_t maxX, uint64_t maxY,
+	std::vector<double> &M, const uint64_t &N, uint64_t K, std::vector<double> &computedData, uint64_t pos){
+	/* Work for a rectangular |maxX - minX + 1| * |maxY - minY + 1| tile */
+	double value;
 	for (int i = maxX; i >= (int)minX; i--){
 		for (uint64_t j = minY; j <= maxY; j++){
-			//std::cout << "i = " << i << " j = " << j << std::endl;
 			int k = K - (i - minX) + (j - minY);
-			//std::cout << "\tWorking with i = " << i << " j = " << j << " k = " << k << " N = " << N << std::endl;
-			if (k >= 1){ work((uint64_t)k, (uint64_t)i, M, N); }
+			if (k >= 1){
+				value = work((uint64_t)k, (uint64_t)i, M, N);
+				computedData[pos] = value;
+				pos++;
+			}
 		}
 	}
+	return pos;
+}
+
+void unpackData(
+	std::vector<double> &M, const uint64_t &N,
+	uint64_t start, uint64_t end, uint64_t tileSize,
+	std::vector<double> &computedData, uint64_t K
+){
+	/* Unpacks data from an array to the result matrix */
+	uint64_t pos = 0;
+	uint64_t minX, minY, maxX, maxY;
+	for (uint64_t i = start; i < end; i++) {
+		minX = tileSize * i;
+		minY = minX + K;
+		maxX = std::min(minX + tileSize - 1, N - 1);
+		maxY = std::min(minY + tileSize - 1, N - 1);
+		for (int l = maxX; l >= (int)minX; l--){
+			for (uint64_t j = minY; j <= maxY; j++){
+				int k = K - (l - minX) + (j - minY);
+				if (k >= 1){
+					M[l*N + (l+k)] = computedData[pos];
+					pos++;
+				}
+			}
+		}
+	}
+}
+
+uint64_t getTotalDiagonalSize(uint64_t numTiles, uint64_t tileSize, uint64_t N, uint64_t K){
+	/* Returns the total cell size of a tile-made diagonal */
+	uint64_t minX, minY, maxX, maxY;
+	uint64_t totalDiagonalSize = 0;
+	for (uint64_t i = 0; i < numTiles; i++){
+		minX = tileSize * i;
+		minY = minX + K;
+		maxX = std::min(minX + tileSize, N);
+		maxY = std::min(minY + tileSize, N);
+		totalDiagonalSize += (maxX - minX) * (maxY - minY);
+	}
+	return totalDiagonalSize;
 }
 
 void sequentialWavefront(std::vector<double> &M, const uint64_t &N) {
@@ -44,8 +100,29 @@ void sequentialWavefront(std::vector<double> &M, const uint64_t &N) {
 	}
 }
 
-void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
-	uint64_t tileSize, const std::string& filename, uint64_t maxworkers){
+
+int main(int argc, char* argv[]){
+	// N,nworkers,tileSize,time
+	bool debug = false;
+    uint64_t chunkSize = 8;
+    uint64_t policy = 1;
+	std::string filename = "output_results_mpi.txt";
+    
+	int myid, nworkers, namelen;
+	char processor_name[MPI_MAX_PROCESSOR_NAME];
+	double t0, t1;
+	struct timeval wt1, wt0;
+    uint64_t N = argc > 1 ? std::stol(argv[1]) : 2000;
+    uint64_t tileSize = argc > 2 ? std::stol(argv[2]) : 1;
+	
+	// MPI_Wtime cannot be used here
+	gettimeofday(&wt0, NULL);
+	MPI_Init(&argc, &argv);	
+	t0 = MPI_Wtime();
+	
+	MPI_Comm_size(MPI_COMM_WORLD, &nworkers);
+	MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+	MPI_Get_processor_name(processor_name, &namelen);
 	
 	// allocate the matrix
 	std::vector<double> M(N*N, 0.0);
@@ -58,106 +135,142 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
 	};
 	
 	init();
-	
-	// ------------
-	std::ofstream output_file;
-	output_file.open(filename, std::ios_base::app);
 
-	output_file << "Parameters: N = " << N << " threadNum = " << threadNum << " policy = " << policy 
-		<< " tileSize = " << tileSize << " chunkSize = " << chunkSize << std::endl;
-
-	auto task = [&](std::vector<double> &M, const uint64_t &N, uint64_t nworkers, long chunk, uint64_t tileSize){
-		ParallelFor name(maxworkers);
+	auto workerTask = [&](std::vector<double> &M, const uint64_t &N, uint64_t nworkers, long tileSize, int myid){
 		for (uint64_t K = 0; K < N; K += tileSize){
 			uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
-			name.parallel_for(0, numTiles, [&](const uint64_t i){
-					// Compute coordinates
-					uint64_t minX, minY, maxX, maxY;
+			uint64_t baseBlockSize = numTiles / (nworkers + 1);
+			if (baseBlockSize == 0) baseBlockSize = 1;
+			uint64_t start = (myid) * baseBlockSize; // start block
+			uint64_t end; // end block
+			if (myid + 1 < (int)nworkers)
+				end = std::min((myid + 1) * baseBlockSize, numTiles);
+			else
+				end = numTiles;
+			if (start < end){
+				uint64_t minX, minY, maxX, maxY;
+				uint64_t actualTileSize = 0;
+				for (uint64_t i = start; i < end; i++) {
 					minX = tileSize * i;
 					minY = minX + K;
-					maxX = std::min(minX + tileSize - 1, N);
-					maxY = std::min(minY + tileSize - 1, N);
-					//std::cout << "Working with minX = " << minX << " minY = " << minY <<
-					//	" maxX = " << maxX << " maxY = " << maxY << " K = " << K << std::endl;
-					tileWork(minX, minY, maxX, maxY, M, N, K);
-			}, nworkers);
-			//if (K % 500 == 0) std::cout << "Concluded for K = " << K << std::endl;
+					maxX = std::min(minX + tileSize, N);
+					maxY = std::min(minY + tileSize, N);
+					if ((minX <= maxX) && (minY <= maxY)){
+						if (K > 0) actualTileSize += (maxX - minX) * (maxY - minY);
+						else actualTileSize += (maxX - minX) * (maxY - minY - 1) / 2;
+					}
+				}
+				std::vector<double> computedData(actualTileSize, 0.0);
+				uint64_t pos = 0;
+				for (uint64_t i = start; i < end; i++){
+					minX = tileSize * i;
+					minY = minX + K;
+					maxX = std::min(minX + tileSize - 1, N - 1);
+					maxY = std::min(minY + tileSize - 1, N - 1);
+					pos = tileWork(minX, minY, maxX, maxY, M, N, K, computedData, pos);
+				}
+				MPI_Send(
+					computedData.data(), (int)actualTileSize, MPI_DOUBLE, 0,
+					K * (2 * nworkers) + myid, MPI_COMM_WORLD
+				);
+			}
+			uint64_t totalDiagonalSize = getTotalDiagonalSize(numTiles, tileSize, N, K);
+			std::vector<double> diagonalData(totalDiagonalSize, 0.0);
+			if (totalDiagonalSize > 0) MPI_Recv(
+				diagonalData.data(), (int)(N * N), MPI_DOUBLE, 0,
+				K * (2 * nworkers) + nworkers + myid,
+				MPI_COMM_WORLD, MPI_STATUS_IGNORE
+			);
+			unpackData(M, N, 0, numTiles, tileSize, diagonalData, K);
 		}
 	};
 
-	// Policy #1: block distribution along a (possibly tiled) diagonal
-	auto blockWavefront = [&](std::vector<double> &M, const uint64_t &N,
-		uint64_t nworkers, uint64_t tileSize){ task(M, N, nworkers, 0, tileSize); };
-
-	// Cyclic distribution policy along (possibly tiled) diagonals
-	auto cyclicWavefront = [&](std::vector<double> &M, const uint64_t &N,
-		uint64_t nworkers, uint64_t tileSize){ task(M, N, nworkers, 1, tileSize); };
-
-	// Block Cyclic distribution policy along (possibly tiled) diagonals
-	auto blockCyclicWavefront = [&](std::vector<double> &M, const uint64_t &N,
-		uint64_t nworkers, uint64_t tileSize, uint64_t chunkSize){ task(M, N, nworkers, chunkSize, tileSize); };
-
-	TIMERSTART(wavefront, 1000, "ms", output_file, "Time: ");
-	std::cout << "Using " << threadNum << " threads" << std::endl;
-	// Now spawn the threads and go
-	if (policy == 0){
-		sequentialWavefront(M, N);
-	} else if (policy == 1){ // block policy
-		blockWavefront(M, N, threadNum, tileSize);
-	} else if (policy == 2){ // cyclic policy
-		cyclicWavefront(M, N, threadNum, tileSize);
-	} else if (policy == 3){
-		blockCyclicWavefront(M, N, threadNum, tileSize, chunkSize);
-	} else {
-		std::cerr << "Error: invalid policy id " << policy << std::endl;
-	}
-	// join each thread at the end
-    TIMERSTOP(wavefront, 1000, "ms", output_file, "Time: ");
-	output_file << computeChecksum(M, N) << std::endl;
-	std::cout << computeChecksum(M, N) << std::endl;
-}
-
-
-int main(int argc, char *argv[]) {
-	//std::vector<uint64_t> threadNums = {1, 2, 4, 6, 8, 10, 12, 14, 16};
-	// Total #comb = 3(sizes) x (1 x 1 + 3 x 2 x 4 + 3 x 1 x 3 x 4) = 3 x (1 + 24 + 36) = 3 x 61 = 183
-	std::vector<uint64_t> sizes = {3000}; //, 4000, 6000}; //, 8000, 10000};
-	std::vector<uint64_t> threadNums = {1, 4, 8, 16}; //{1, 2, 4, 8, 16};
-	std::vector<uint64_t> policies = {0, 1, 2, 3};
-	std::vector<uint64_t> tileSizes = {1, 4, 8, 16};
-	std::vector<uint64_t> chunkSizes = {32, 64, 128};
-	std::string filename = "output_results_mpi.txt";
-	if (argc > 1) filename = argv[1];
-
-	int myid, numprocs, namelen;
-	char processor_name[MPI_MAX_PROCESSOR_NAME];
-	double t0, t1;
-	struct timeval wt1, wt0;
-    uint64_t N = std::stol(argv[1]);
-	
-	// MPI_Wtime cannot be used here
-	gettimeofday(&wt0, NULL);
-	MPI_Init(&argc, &argv);	
-	t0 = MPI_Wtime();
-	
-	MPI_Comm_size(MPI_COMM_WORLD, &numprocs); 
-	MPI_Comm_rank(MPI_COMM_WORLD, &myid); 
-	MPI_Get_processor_name(processor_name, &namelen);
-	
-	for (auto& N : sizes){
-		for (auto& threadNum : threadNums){
-			if (threadNum <= 1){ run(N, threadNum, 0, 1, 1, filename, 16); }
-			else {
-				for (auto& policy : policies){
-					if (policy > 0){
-						for (auto& tileSize : tileSizes){
-							if (policy < 3) run(N, threadNum, policy, 1, tileSize, filename, 16, numprocs, myid);
-							else for (auto& chunkSize : chunkSizes) run(N, threadNum, policy, chunkSize, tileSize, filename, 16, numprocs, myid);
-						}
-					}
+	auto serverTask = [&](std::vector<double> &M, const uint64_t &N, uint64_t nworkers, long chunk){
+		for (uint64_t K = 0; K < N; K += tileSize){
+			uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
+			uint64_t baseBlockSize = numTiles / (nworkers + 1);
+			if (baseBlockSize == 0) baseBlockSize = 1;
+			uint64_t start = 0;
+			uint64_t end = nworkers > 1 ? baseBlockSize : N - K;
+			//# ....
+			uint64_t minX, minY, maxX, maxY;
+			uint64_t actualTileSize = 0;
+			for (uint64_t i = start; i < end; i++) {
+				minX = tileSize * i;
+				minY = minX + K;
+				maxX = std::min(minX + tileSize, N);
+				maxY = std::min(minY + tileSize, N);
+				if ((minX <= maxX) && (minY <= maxY)){
+					if (K > 0) actualTileSize += (maxX - minX) * (maxY - minY);
+					else actualTileSize += (maxX - minX) * (maxY - minY - 1) / 2;
 				}
 			}
+			std::vector<double> diagonalData(actualTileSize, 0.0);
+			uint64_t pos = 0;
+			for (uint64_t i = start; i < end; i++){
+				minX = tileSize * i;
+				minY = minX + K;
+				maxX = std::min(minX + tileSize - 1, N - 1);
+				maxY = std::min(minY + tileSize - 1, N - 1);
+				pos = tileWork(minX, minY, maxX, maxY, M, N, K, diagonalData, pos);
+			}
+			//# ....
+			for (int myid = 1; myid < (int)nworkers; myid++){
+				uint64_t start = (myid) * baseBlockSize; // start block
+				uint64_t end; // end block
+				if (myid + 1 < (int)nworkers)
+					end = std::min((myid + 1) * baseBlockSize, N - K);
+				else
+					end = N - K;
+				if (start < end){
+					uint64_t minX, minY, maxX, maxY;
+					uint64_t actualTileSize = 0;
+					for (uint64_t i = start; i < end; i++) {
+						minX = tileSize * i;
+						minY = minX + K;
+						maxX = std::min(minX + tileSize, N);
+						maxY = std::min(minY + tileSize, N);
+						if ((minX <= maxX) && (minY <= maxY)){
+							if (K > 0) actualTileSize += (maxX - minX) * (maxY - minY);
+							else actualTileSize += (maxX - minX) * (maxY - minY - 1) / 2;
+						}
+					}
+					std::vector<double> computedData(actualTileSize, 0.0);
+					if (actualTileSize > 0) MPI_Recv(
+						computedData.data(), (int)actualTileSize, MPI_DOUBLE, myid,
+						K * (2 * nworkers) + myid, MPI_COMM_WORLD, MPI_STATUS_IGNORE
+					);
+					unpackData(M, N, start, end, tileSize, computedData, K);
+					diagonalData.insert(diagonalData.end(), computedData.begin(), computedData.end());
+				}
+			}
+			uint64_t totalDiagonalSize = diagonalData.size();
+			for (int myid = 1; myid < (int)nworkers; myid++){
+				MPI_Send(
+					diagonalData.data(), (int)(totalDiagonalSize), MPI_DOUBLE, myid,
+					K * (2 * nworkers) + nworkers + myid, MPI_COMM_WORLD
+				);
+			}
 		}
+	};
+
+	std::ofstream output_file;
+	if (myid == 0){
+		output_file.open(filename, std::ios_base::app);
+		serverTask(M, N, nworkers, tileSize);
+	} else {
+		workerTask(M, N, nworkers, tileSize, myid);
 	}
-    return 0;
+
+	t1 = MPI_Wtime();
+	MPI_Finalize();
+	gettimeofday(&wt1,NULL);  
+	
+	if (myid == 0){
+		std::cout << "Total time (MPI) " << myid << " is " << t1-t0 << " (S)\n";
+		std::cout << "Total time       " << myid << " is " << diffmsec(wt1,wt0)/1000 << " (S)\n";
+		std::cout << computeChecksum(M, N) << std::endl;
+		output_file << N << "," << nworkers << "," << tileSize << "," << 1000.0*(t1-t0) << "," << diffmsec(wt1,wt0) << std::endl;
+	}
+	return 0;
 }

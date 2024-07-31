@@ -32,7 +32,7 @@
                   << elapsedTime  << " (" << unitstr << ")" << std::endl;      \
         else                                                                   \
             outputStream << initString << elapsedTime                          \
-                  << " (" << unitstr << ")" << std::endl;                      
+                  << unitstr << std::endl;                      
 #else
     #define TIMERSTOP(label, unit, unitstr, outputStream, initString)              \
             cudaEventRecord(stop##label, 0);                                       \
