@@ -105,7 +105,6 @@ int main(int argc, char* argv[]){
 	// N,nworkers,tileSize,time
 	bool debug = false;
     uint64_t chunkSize = 8;
-    uint64_t policy = 1;
 	std::string filename = "output_results_mpi.txt";
     
 	int myid, nworkers, namelen;
@@ -114,6 +113,7 @@ int main(int argc, char* argv[]){
 	struct timeval wt1, wt0;
     uint64_t N = argc > 1 ? std::stol(argv[1]) : 2000;
     uint64_t tileSize = argc > 2 ? std::stol(argv[2]) : 1;
+	uint64_t policy = argc > 3 ? std::stol(argv[3]) : 1; // Block Policy by default
 	
 	// MPI_Wtime cannot be used here
 	gettimeofday(&wt0, NULL);
@@ -257,20 +257,29 @@ int main(int argc, char* argv[]){
 	std::ofstream output_file;
 	if (myid == 0){
 		output_file.open(filename, std::ios_base::app);
-		serverTask(M, N, nworkers, tileSize);
+		if (policy == 0){
+			sequentialWavefront(M, N);
+		} else if (policy == 1){
+			serverTask(M, N, nworkers, tileSize);
+		}
 	} else {
-		workerTask(M, N, nworkers, tileSize, myid);
+		if (policy == 1){
+			workerTask(M, N, nworkers, tileSize, myid);
+		}
 	}
 
 	t1 = MPI_Wtime();
 	MPI_Finalize();
-	gettimeofday(&wt1,NULL);  
+	gettimeofday(&wt1,NULL);
 	
 	if (myid == 0){
-		std::cout << "Total time (MPI) " << myid << " is " << t1-t0 << " (S)\n";
-		std::cout << "Total time       " << myid << " is " << diffmsec(wt1,wt0)/1000 << " (S)\n";
+		std::cout << "Parameters: N = " << N << " policy = " << policy << " nworkers = " << nworkers 
+			<< " tileSize = " << tileSize << std::endl;
+		std::cout << "Total time (MPI) " << myid << " is " << 1000.0*(t1-t0) << " (ms)\n";
+		std::cout << "Total time       " << myid << " is " << diffmsec(wt1,wt0) << " (ms)\n";
 		std::cout << computeChecksum(M, N) << std::endl;
-		output_file << N << "," << nworkers << "," << tileSize << "," << 1000.0*(t1-t0) << "," << diffmsec(wt1,wt0) << std::endl;
+		output_file << N << "," << policy << "," << nworkers << "," << tileSize << "," 
+			<< 1000.0*(t1-t0) << "," << diffmsec(wt1,wt0) << std::endl;
 	}
 	return 0;
 }

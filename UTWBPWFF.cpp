@@ -14,6 +14,7 @@
 #include "utils.hpp"
 
 using namespace ff;
+#define MAXWORKERS 32
 
 void work(uint64_t k, uint64_t i, std::vector<double> &M, const uint64_t &N){
 	double sum = 0.0;
@@ -116,9 +117,9 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
 
 
 int main(int argc, char *argv[]) {
-	std::vector<uint64_t> sizes = {500, 1000, 2000, 3000, 4000, 6000, 8000};
-	std::vector<uint64_t> threadNums = {1, 2, 4, 6, 8, 10, 12, 14, 16, 24, 32};
-	std::vector<uint64_t> policies = {0, 1, 2, 3};
+	std::vector<uint64_t> sizes = {8000}; //{500, 1000, 2000, 3000, 4000, 6000, 8000};
+	std::vector<uint64_t> threadNums = {24, 32}; //{1, 2, 4, 6, 8, 10, 12, 14, 16, 24, 32};
+	std::vector<uint64_t> policies = {3}; //{0, 1, 2, 3};
 	std::vector<uint64_t> tileSizes = {1, 4, 8};
 	std::vector<uint64_t> chunkSizes = {32, 64, 128};
 	std::string filename = "output_results_ff.txt";
@@ -130,13 +131,13 @@ int main(int argc, char *argv[]) {
 	for (auto& N : sizes){
 		for (auto& policy : policies){
 			if (policy == 0) {
-				for (auto& tileSize : tileSizes) run(N, 1, 0, 1, tileSize, filename, 16);
+				for (auto& tileSize : tileSizes) run(N, 1, 0, 1, tileSize, filename, MAXWORKERS);
 			}
 			else {
 				for (auto& threadNum : threadNums){
 					for (auto& tileSize : tileSizes){
-						if (policy < 3) run(N, threadNum, policy, 1, tileSize, filename, 16);
-						else for (auto& chunkSize : chunkSizes) run(N, threadNum, policy, chunkSize, tileSize, filename, 16);
+						if (policy < 3) run(N, threadNum, policy, 1, tileSize, filename, MAXWORKERS);
+						else for (auto& chunkSize : chunkSizes) run(N, threadNum, policy, chunkSize, tileSize, filename, MAXWORKERS);
 					}
 				}
 			}

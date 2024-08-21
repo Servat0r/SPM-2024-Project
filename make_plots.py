@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
+import numpy as np
 
 
 def cls(): os.system('cls')
@@ -28,8 +29,14 @@ def select_speedup_data(
         (df['policy'] == 0)
     ]
     if drop_columns:
-        filtered_parallel_df.drop(columns=['N', 'tileSize', 'policy', 'chunkSize'], inplace=True)
-        filtered_sequential_df.drop(columns=['N', 'tileSize', 'policy', 'chunkSize'], inplace=True)
+        if 'chunkSize' in filtered_parallel_df:
+            filtered_parallel_df = filtered_parallel_df.drop(columns=['N', 'tileSize', 'policy', 'chunkSize'])
+        else:
+            filtered_parallel_df = filtered_parallel_df.drop(columns=['N', 'tileSize', 'policy'])
+        if 'chunkSize' in filtered_sequential_df:
+            filtered_sequential_df = filtered_sequential_df.drop(columns=['N', 'tileSize', 'policy', 'chunkSize'])
+        else:
+            filtered_sequential_df = filtered_sequential_df.drop(columns=['N', 'tileSize', 'policy'])
     speedup_df = pd.concat([filtered_sequential_df, filtered_parallel_df])
     sequential_time = filtered_sequential_df['time']
     speedup_df['speedup'] = speedup_df['time'].apply(lambda x : sequential_time / x)
@@ -40,15 +47,30 @@ def select_strong_scalability_data(
     df: pd.DataFrame, N: int, tileSize: int, policy: int,
     chunkSize: int = 1, drop_columns: bool = True
 ):
-    filtered_df = df[
-        (df['N'] == N) &
-        (df['tileSize'] == tileSize) &
-        (df['policy'] == policy)
-    ]
+    if 'policy' in df:
+        filtered_df = df[
+            (df['N'] == N) &
+            (df['tileSize'] == tileSize) &
+            (df['policy'] == policy)
+        ]
+    else:
+        filtered_df = df[
+            (df['N'] == N) &
+            (df['tileSize'] == tileSize)
+        ]
     if policy == 3:
         filtered_df = filtered_df[filtered_df['chunkSize'] == chunkSize]
     if drop_columns:
-        filtered_df.drop(columns=['N', 'tileSize', 'policy', 'chunkSize'], inplace=True)
+        if 'policy' in df:
+            if 'chunkSize' in filtered_df:
+                filtered_df = filtered_df.drop(columns=['N', 'tileSize', 'policy', 'chunkSize'])
+            else:
+                filtered_df = filtered_df.drop(columns=['N', 'tileSize', 'policy'])
+        else:
+            if 'chunkSize' in filtered_df:
+                filtered_df = filtered_df.drop(columns=['N', 'tileSize', 'chunkSize'])
+            else:
+                filtered_df = filtered_df.drop(columns=['N', 'tileSize'])
     single_thread_time = filtered_df[filtered_df['nworkers'] == 1]['time']
     print(filtered_df, single_thread_time, sep='\n\n')
     filtered_df['strong_scalability'] = filtered_df['time'].apply(lambda x : single_thread_time / x)
@@ -66,7 +88,10 @@ def select_weak_scalability_data(
     if policy == 3:
         filtered_df = filtered_df[filtered_df['chunkSize'] == chunkSize]
     if drop_columns:
-        filtered_df.drop(columns=['tileSize', 'policy', 'chunkSize'], inplace=True)
+        if 'chunkSize' in filtered_df:
+            filtered_df = filtered_df.drop(columns=['tileSize', 'policy', 'chunkSize'])
+        else:
+            filtered_df = filtered_df.drop(columns=['tileSize', 'policy'])
     p = 2
     result_df = filtered_df[(filtered_df['N'] == N) & (filtered_df['nworkers'] == 1)]
     while (N * p <= maxN):
@@ -90,7 +115,10 @@ def select_quadratic_weak_scalability_data(
     if policy == 3:
         filtered_df = filtered_df[filtered_df['chunkSize'] == chunkSize]
     if drop_columns:
-        filtered_df.drop(columns=['tileSize', 'policy', 'chunkSize'], inplace=True)
+        if 'chunkSize' in filtered_df:
+            filtered_df = filtered_df.drop(columns=['tileSize', 'policy', 'chunkSize'])
+        else:
+            filtered_df = filtered_df.drop(columns=['tileSize', 'policy'])
     p = 2
     result_df = filtered_df[(filtered_df['N'] == N) & (filtered_df['nworkers'] == 1)]
     while (N * p * p <= maxN):
@@ -107,5 +135,21 @@ def select_efficiency_data(
         chunkSize: int = 1, drop_columns: bool = True
 ):
     efficiency_df = select_speedup_data(df, N, tileSize, policy, chunkSize, drop_columns)
-    efficiency_df['efficiency'] = efficiency_df['speedup'] / efficiency_df['nworkers']
+    efficiency_df['efficiency'] = efficiency_df['speedup'] / efficiency_df['nworkers'] * 100
     return efficiency_df
+
+def round_to_significant_digits(value, digits):
+    if value == 0:
+        return 0
+    return round(value, digits - int(np.floor(np.log10(abs(value)))) - 1)
+
+def write_back_data(
+    df: pd.DataFrame, base_filename: str,
+    select_type: str, N: int, tileSize: int,
+    policy: int, chunkSize: int = 1, digits: int = 4
+):
+    filename = f"{base_filename}_{select_type}_{N}_{policy}_{tileSize}_{chunkSize}.csv"
+    for field in ['speedup', 'efficiency', 'strong_scalability_data', 'weak_scalability_data', 'time']:
+        if field in df:
+            df[field] = df[field].apply(lambda x: round_to_significant_digits(x, digits))
+    df.to_csv(filename, index=False)
