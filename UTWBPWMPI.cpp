@@ -150,15 +150,19 @@ int main(int argc, char* argv[]){
 			if (start < end){
 				uint64_t minX, minY, maxX, maxY;
 				uint64_t actualTileSize = 0;
-				for (uint64_t i = start; i < end; i++) {
-					minX = tileSize * i;
-					minY = minX + K;
-					maxX = std::min(minX + tileSize, N);
-					maxY = std::min(minY + tileSize, N);
-					if ((minX <= maxX) && (minY <= maxY)){
-						if (K > 0) actualTileSize += (maxX - minX) * (maxY - minY);
-						else actualTileSize += (maxX - minX) * (maxY - minY - 1) / 2;
-					}
+				if (K > 0){
+					actualTileSize = (end - 1 - start) * tileSize * tileSize;
+				} else {
+					actualTileSize = (end - 1 - start) * tileSize * (tileSize - 1) / 2;
+				}
+				uint64_t i = end - 1;
+				minX = tileSize * i;
+				minY = minX + K;
+				maxX = std::min(minX + tileSize, N);
+				maxY = std::min(minY + tileSize, N);
+				if ((minX <= maxX) && (minY <= maxY)){
+					if (K > 0) actualTileSize += (maxX - minX) * (maxY - minY);
+					else actualTileSize += (maxX - minX) * (maxY - minY - 1) / 2;
 				}
 				std::vector<double> computedData(actualTileSize, 0.0);
 				uint64_t pos = 0;
@@ -195,7 +199,13 @@ int main(int argc, char* argv[]){
 			//# ....
 			uint64_t minX, minY, maxX, maxY;
 			uint64_t actualTileSize = 0;
-			for (uint64_t i = start; i < end; i++) {
+			if (start < end){
+				if (K > 0){
+					actualTileSize = (end - 1 - start) * tileSize * tileSize;
+				} else {
+					actualTileSize = (end - 1 - start) * tileSize * (tileSize - 1) / 2;
+				}
+				uint64_t i = end - 1;
 				minX = tileSize * i;
 				minY = minX + K;
 				maxX = std::min(minX + tileSize, N);
