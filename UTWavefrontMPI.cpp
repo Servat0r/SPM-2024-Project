@@ -105,7 +105,6 @@ int main(int argc, char* argv[]){
 	// N,nworkers,tileSize,time
 	bool debug = false;
     uint64_t chunkSize = 8;
-	std::string filename = "output_results_mpi.txt";
     
 	int myid, nworkers, namelen;
 	char processor_name[MPI_MAX_PROCESSOR_NAME];
@@ -114,6 +113,8 @@ int main(int argc, char* argv[]){
     uint64_t N = argc > 1 ? std::stol(argv[1]) : 2000;
     uint64_t tileSize = argc > 2 ? std::stol(argv[2]) : 1;
 	uint64_t policy = argc > 3 ? std::stol(argv[3]) : 1; // Block Policy by default
+	uint64_t nnodes = argc > 4 ? std::stol(argv[4]) : 0;
+	std::string filename = argc > 5 ? argv[5] : "output_results_mpi.csv";
 	
 	// MPI_Wtime cannot be used here
 	gettimeofday(&wt0, NULL);
@@ -123,6 +124,7 @@ int main(int argc, char* argv[]){
 	MPI_Comm_size(MPI_COMM_WORLD, &nworkers);
 	MPI_Comm_rank(MPI_COMM_WORLD, &myid);
 	MPI_Get_processor_name(processor_name, &namelen);
+	if (nnodes == 0) nnodes = (uint64_t)nworkers;
 	
 	// allocate the matrix
 	std::vector<double> M(N*N, 0.0);
@@ -283,13 +285,14 @@ int main(int argc, char* argv[]){
 	gettimeofday(&wt1,NULL);
 	
 	if (myid == 0){
-		std::cout << "Parameters: N = " << N << " policy = " << policy << " nworkers = " << nworkers 
-			<< " tileSize = " << tileSize << std::endl;
+		std::cout << "Parameters: N = " << N << " policy = " << policy << " nnodes = " << nnodes
+		<< " ntasks = " << nworkers << " tileSize = " << tileSize << std::endl;
 		std::cout << "Total time (MPI) " << myid << " is " << 1000.0*(t1-t0) << " (ms)\n";
 		std::cout << "Total time       " << myid << " is " << diffmsec(wt1,wt0) << " (ms)\n";
-		std::cout << computeChecksum(M, N) << std::endl;
-		output_file << N << "," << policy << "," << nworkers << "," << tileSize << "," 
-			<< 1000.0*(t1-t0) << "," << diffmsec(wt1,wt0) << std::endl;
+		uint64_t checksum = computeChecksum(M, N);
+		std::cout << checksum << std::endl;
+		output_file << N << "," << policy << "," << nnodes << "," << nworkers << "," << tileSize << "," 
+			<< 1000.0*(t1-t0) << "," << diffmsec(wt1,wt0) << "," << checksum << std::endl;
 	}
 	return 0;
 }
