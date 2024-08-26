@@ -1,31 +1,37 @@
 #!/bin/bash
 
 # Define parameter ranges or lists
-N_list=(1000 2000 3000 4000 6000 8000)
 policy_list=(1)
-ntasks_list=(1 2 4 6 8 10 12 16 20 24 32 48 64) # Number of tasks
-tileSize_list=(1 4 8 16)
+ntasks_list=(2 3 5 9 11 13 17 21 25 33 49 65) # Number of tasks + frontend task
+tileSize_list=(128 256)
 
 read -p "Enter the number of nodes to use: " nnodes
 echo "Using $nnodes nodes ..."
 
+read -p "Enter the size of the matrix to use: " N
+echo "Using a matrix of size $N ..."
+
 # Loop over all combinations of parameters
-for N in "${N_list[@]}"; do
-    for policy in "${policy_list[@]}"; do
-        for ntasks in "${ntasks_list[@]}"; do
-            if [ "$ntasks" -ge "$nnodes"]; then
+for policy in "${policy_list[@]}"; do
+    #salloc --nodes $nnodes
+    #echo "Using job id ${SLURM_JOB_ID} ..."
+    for ntasks in "${ntasks_list[@]}"; do
+        if [ "$ntasks" -ge "$nnodes" ]; then
+            if (( ntasks <= 16 * nnodes + 1)); then
                 for tileSize in "${tileSize_list[@]}"; do
                     echo "Running with parameters: N=$N, nnodes=$nnodes, ntasks=$ntasks, tileSize=$tileSize"
-                    srun --mpi=pmix --nodes $nnodes --ntasks $ntasks -e spmcluster_mpi_err.log ./UTWavefrontMPI $N $tileSize $policy $nnodes output_results_mpi_spmcluster.csv
+                    srun --mpi=pmix --nodes $nnodes --ntasks $ntasks -e spmcluster_mpi_err.log ./UTWavefrontMPI $N $tileSize $policy $nnodes output_results_mpi_spmcluster_${N}size_${nnodes}nodes.csv
+                    #mpirun -N $ntasks ./UTWavefrontMPI $N $tileSize $policy $nnodes output_results_mpi_spmcluster_${N}_${nnodes}nodes.csv
                     if [ $? -ne 0 ]; then
                         echo "An error occurred with parameters: N=$N, nnodes=$nnodes, ntasks=$ntasks, tileSize=$tileSize"
                         read -p "Continue execution (y/n)?" cont
                         if [ "$cont" == "n" ]; then
-                            break 4  # Only for bash 4 or above
+                            #scancel "${SLURM_JOB_ID}"
+                            break 3  # Only for bash 4 or above
                         fi
                     fi
                 done
             fi
-        done
+        fi
     done
 done

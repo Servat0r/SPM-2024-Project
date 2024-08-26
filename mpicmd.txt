@@ -1,2 +1,2 @@
 mpirun -N 16 ./UTWBPWMPI 2000 128
-mpicxx -Wall -O3 -I ./include UTWBPWMPI.cpp -o UTWBPWMPI
+mpicxx -Wall -O3 -I ./include UTWavefrontMPI.cpp -o UTWavefrontMPI

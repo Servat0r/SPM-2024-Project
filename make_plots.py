@@ -13,7 +13,8 @@ def get_dataframe(filename: str):
 
 def select_speedup_data(
         df: pd.DataFrame, N: int, tileSize: int, policy: int,
-        chunkSize: int = 1, drop_columns: bool = True
+        chunkSize: int = 1, drop_columns: bool = True,
+        sequential_time: int = None,
 ):
     filtered_parallel_df = df[
         (df['N'] == N) &
@@ -23,22 +24,30 @@ def select_speedup_data(
     ]
     if policy == 3:
         filtered_parallel_df = filtered_parallel_df[filtered_parallel_df['chunkSize'] == chunkSize]
-    filtered_sequential_df = df[
-        (df['N'] == N) &
-        (df['tileSize'] == 1) &
-        (df['policy'] == 0)
-    ]
+    if sequential_time is None:
+        filtered_sequential_df = df[
+            (df['N'] == N) &
+            (df['tileSize'] == 1) &
+            (df['policy'] == 0)
+        ]
+        if drop_columns:
+            if 'chunkSize' in filtered_sequential_df:
+                filtered_sequential_df = filtered_sequential_df.drop(columns=['N', 'tileSize', 'policy', 'chunkSize'])
+            else:
+                filtered_sequential_df = filtered_sequential_df.drop(columns=['N', 'tileSize', 'policy'])
+        sequential_time = filtered_sequential_df['time']
     if drop_columns:
         if 'chunkSize' in filtered_parallel_df:
             filtered_parallel_df = filtered_parallel_df.drop(columns=['N', 'tileSize', 'policy', 'chunkSize'])
         else:
             filtered_parallel_df = filtered_parallel_df.drop(columns=['N', 'tileSize', 'policy'])
-        if 'chunkSize' in filtered_sequential_df:
-            filtered_sequential_df = filtered_sequential_df.drop(columns=['N', 'tileSize', 'policy', 'chunkSize'])
-        else:
-            filtered_sequential_df = filtered_sequential_df.drop(columns=['N', 'tileSize', 'policy'])
-    speedup_df = pd.concat([filtered_sequential_df, filtered_parallel_df])
-    sequential_time = filtered_sequential_df['time']
+        if 'checksum' in filtered_parallel_df:
+            filtered_parallel_df = filtered_parallel_df.drop(columns=['checksum'])
+        if 'nnodes' in filtered_parallel_df:
+            filtered_parallel_df = filtered_parallel_df.drop(columns=['nnodes'])
+        if 'MPITime' in filtered_parallel_df:
+            filtered_parallel_df = filtered_parallel_df.drop(columns=['MPITime'])
+    speedup_df = filtered_parallel_df
     speedup_df['speedup'] = speedup_df['time'].apply(lambda x : sequential_time / x)
     return speedup_df
 
@@ -132,9 +141,12 @@ def select_quadratic_weak_scalability_data(
 
 def select_efficiency_data(
         df: pd.DataFrame, N: int, tileSize: int, policy: int,
-        chunkSize: int = 1, drop_columns: bool = True
+        chunkSize: int = 1, drop_columns: bool = True,
+        sequential_time: int = None,
 ):
-    efficiency_df = select_speedup_data(df, N, tileSize, policy, chunkSize, drop_columns)
+    efficiency_df = select_speedup_data(
+        df, N, tileSize, policy, chunkSize, drop_columns, sequential_time=sequential_time
+    )
     efficiency_df['efficiency'] = efficiency_df['speedup'] / efficiency_df['nworkers'] * 100
     return efficiency_df
 

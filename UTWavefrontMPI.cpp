@@ -141,31 +141,28 @@ int main(int argc, char* argv[]){
 	auto workerTask = [&](std::vector<double> &M, const uint64_t &N, uint64_t nworkers, long tileSize, int myid){
 		for (uint64_t K = 0; K < N; K += tileSize){
 			uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
-			uint64_t baseBlockSize = numTiles / (nworkers + 1);
+			uint64_t baseBlockSize = numTiles / (nworkers - 1);
 			if (baseBlockSize == 0) baseBlockSize = 1;
-			uint64_t start = (myid) * baseBlockSize; // start block
+			uint64_t start = (myid - 1) * baseBlockSize; // start block
 			uint64_t end; // end block
 			if (myid + 1 < (int)nworkers)
-				end = std::min((myid + 1) * baseBlockSize, numTiles);
+				end = std::min((myid) * baseBlockSize, numTiles);
 			else
 				end = numTiles;
 			if (start < end){
 				uint64_t minX, minY, maxX, maxY;
 				uint64_t actualTileSize = 0;
-				if (K > 0){
-					actualTileSize = (end - 1 - start) * tileSize * tileSize;
-				} else {
-					actualTileSize = (end - 1 - start) * tileSize * (tileSize - 1) / 2;
+				for (uint64_t i = start; i < end; i++){
+					minX = tileSize * i;
+					minY = minX + K;
+					maxX = std::min(minX + tileSize, N);
+					maxY = std::min(minY + tileSize, N);
+					if ((minX <= maxX) && (minY <= maxY)){
+						if (K > 0) actualTileSize += (maxX - minX) * (maxY - minY);
+						else actualTileSize += (maxX - minX) * (maxY - minY - 1) / 2;
+					}
 				}
-				uint64_t i = end - 1;
-				minX = tileSize * i;
-				minY = minX + K;
-				maxX = std::min(minX + tileSize, N);
-				maxY = std::min(minY + tileSize, N);
-				if ((minX <= maxX) && (minY <= maxY)){
-					if (K > 0) actualTileSize += (maxX - minX) * (maxY - minY);
-					else actualTileSize += (maxX - minX) * (maxY - minY - 1) / 2;
-				}
+				//uint64_t i = end - 1;
 				std::vector<double> computedData(actualTileSize, 0.0);
 				uint64_t pos = 0;
 				for (uint64_t i = start; i < end; i++){
@@ -194,50 +191,21 @@ int main(int argc, char* argv[]){
 	auto serverTask = [&](std::vector<double> &M, const uint64_t &N, uint64_t nworkers, long chunk){
 		for (uint64_t K = 0; K < N; K += tileSize){
 			uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
-			uint64_t baseBlockSize = numTiles / (nworkers + 1);
+			uint64_t baseBlockSize = numTiles / (nworkers - 1);
 			if (baseBlockSize == 0) baseBlockSize = 1;
-			uint64_t start = 0;
-			uint64_t end = nworkers > 1 ? baseBlockSize : N - K;
-			//# ....
-			uint64_t minX, minY, maxX, maxY;
-			uint64_t actualTileSize = 0;
-			if (start < end){
-				if (K > 0){
-					actualTileSize = (end - 1 - start) * tileSize * tileSize;
-				} else {
-					actualTileSize = (end - 1 - start) * tileSize * (tileSize - 1) / 2;
-				}
-				uint64_t i = end - 1;
-				minX = tileSize * i;
-				minY = minX + K;
-				maxX = std::min(minX + tileSize, N);
-				maxY = std::min(minY + tileSize, N);
-				if ((minX <= maxX) && (minY <= maxY)){
-					if (K > 0) actualTileSize += (maxX - minX) * (maxY - minY);
-					else actualTileSize += (maxX - minX) * (maxY - minY - 1) / 2;
-				}
-			}
-			std::vector<double> diagonalData(actualTileSize, 0.0);
-			uint64_t pos = 0;
-			for (uint64_t i = start; i < end; i++){
-				minX = tileSize * i;
-				minY = minX + K;
-				maxX = std::min(minX + tileSize - 1, N - 1);
-				maxY = std::min(minY + tileSize - 1, N - 1);
-				pos = tileWork(minX, minY, maxX, maxY, M, N, K, diagonalData, pos);
-			}
+			std::vector<double> diagonalData;
 			//# ....
 			for (int myid = 1; myid < (int)nworkers; myid++){
-				uint64_t start = (myid) * baseBlockSize; // start block
+				uint64_t start = (myid - 1) * baseBlockSize; // start block
 				uint64_t end; // end block
 				if (myid + 1 < (int)nworkers)
-					end = std::min((myid + 1) * baseBlockSize, N - K);
+					end = std::min((myid) * baseBlockSize, N - K);
 				else
 					end = N - K;
 				if (start < end){
 					uint64_t minX, minY, maxX, maxY;
 					uint64_t actualTileSize = 0;
-					for (uint64_t i = start; i < end; i++) {
+					for (uint64_t i = start; i < end; i++){
 						minX = tileSize * i;
 						minY = minX + K;
 						maxX = std::min(minX + tileSize, N);
@@ -286,7 +254,7 @@ int main(int argc, char* argv[]){
 	
 	if (myid == 0){
 		std::cout << "Parameters: N = " << N << " policy = " << policy << " nnodes = " << nnodes
-		<< " ntasks = " << nworkers << " tileSize = " << tileSize << std::endl;
+		<< " ntasks = " << nworkers - 1 << " tileSize = " << tileSize << std::endl;
 		std::cout << "Total time (MPI) " << myid << " is " << 1000.0*(t1-t0) << " (ms)\n";
 		std::cout << "Total time       " << myid << " is " << diffmsec(wt1,wt0) << " (ms)\n";
 		uint64_t checksum = computeChecksum(M, N);
