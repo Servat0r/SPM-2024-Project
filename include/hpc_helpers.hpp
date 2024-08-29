@@ -39,11 +39,11 @@
             cudaEventSynchronize(stop##label);                                     \
             cudaEventElapsedTime(&time##label, start##label, stop##label);         \
             if (initString == NULL)                                                \
-                outputStream << "TIMING: " << 0.001 * unit * time##label << " " << \
-                unitstr << "(" << #label << ")" << std::endl;                      \
+                outputStream << "TIMING: " << 0.001 * unit * time##label <<        \
+                unitstr << "(" << #label << ")";                                   \
             else                                                                   \
-                outputStream << 0.001 * unit * time##label << " " <<               \
-                unitstr << initString << std::endl;                                
+                outputStream << 0.001 * unit * time##label <<                      \
+                unitstr << initString;                                
 #endif
 
 

@@ -3,7 +3,7 @@
 # Define parameter ranges or lists
 policy_list=(1)
 ntasks_list=(2 3 5 9 11 13 17 21 25 33 49 65) # Number of tasks + frontend task
-tileSize_list=(128 256)
+tileSize_list=(1 4 8 16)
 
 read -p "Enter the number of nodes to use: " nnodes
 echo "Using $nnodes nodes ..."

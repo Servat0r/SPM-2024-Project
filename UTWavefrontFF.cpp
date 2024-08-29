@@ -117,31 +117,14 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
 
 
 int main(int argc, char *argv[]) {
-	std::vector<uint64_t> sizes = {8000}; //{500, 1000, 2000, 3000, 4000, 6000, 8000};
-	std::vector<uint64_t> threadNums = {24, 32}; //{1, 2, 4, 6, 8, 10, 12, 14, 16, 24, 32};
-	std::vector<uint64_t> policies = {3}; //{0, 1, 2, 3};
-	std::vector<uint64_t> tileSizes = {1, 4, 8};
-	std::vector<uint64_t> chunkSizes = {32, 64, 128};
-	std::string filename = "output_results_ff.txt";
-	std::ofstream output_file;
-	output_file.open(filename, std::ios_base::app);
-	output_file << "N,nworkers,policy,tileSize,chunkSize" << std::endl;
-	output_file.close();
-	if (argc > 1) filename = argv[1];
-	for (auto& N : sizes){
-		for (auto& policy : policies){
-			if (policy == 0) {
-				for (auto& tileSize : tileSizes) run(N, 1, 0, 1, tileSize, filename, MAXWORKERS);
-			}
-			else {
-				for (auto& threadNum : threadNums){
-					for (auto& tileSize : tileSizes){
-						if (policy < 3) run(N, threadNum, policy, 1, tileSize, filename, MAXWORKERS);
-						else for (auto& chunkSize : chunkSizes) run(N, threadNum, policy, chunkSize, tileSize, filename, MAXWORKERS);
-					}
-				}
-			}
-		}
-	}
+	std::string filename = "output_results_ff.csv";
+	uint64_t N = argc > 1 ? std::stol(argv[1]) : 1000;
+	uint64_t policy = argc > 2 ? std::stol(argv[2]) : 0;
+	uint64_t tileSize = argc > 3 ? std::stol(argv[3]) : 1;
+	uint64_t threadNum = argc > 4 ? std::stol(argv[4]) : 1;
+	uint64_t chunkSize = argc > 5 ? std::stol(argv[5]) : 128;
+	if (argc > 6) filename = argv[6];
+
+	run(N, threadNum, policy, chunkSize, tileSize, filename, MAXWORKERS);
     return 0;
 }
