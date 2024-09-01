@@ -35,10 +35,17 @@ void tileWork(uint64_t minX, uint64_t minY, uint64_t maxX, uint64_t maxY,
 	}
 }
 
-void sequentialWavefront(std::vector<double> &M, const uint64_t &N) {
-	for(uint64_t k = 1; k< N; ++k) {        // for each upper diagonal
-		for(uint64_t i = 0; i< (N-k); ++i) {// for each elem. in the diagonal
-			work(k, i, M, N);
+void sequentialWavefront(std::vector<double> &M, const uint64_t &N, const uint64_t tileSize) {
+	for (uint64_t K = 0; K < N; K += tileSize){
+		uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
+		uint64_t pos = 0;
+		uint64_t minX, maxX, minY, maxY;
+		for (uint64_t i = 0; i < numTiles; i++){
+			minX = tileSize * i;
+			minY = minX + K;
+			maxX = std::min(minX + tileSize - 1, N - 1);
+			maxY = std::min(minY + tileSize - 1, N - 1);
+			tileWork(minX, minY, maxX, maxY, M, N, K);
 		}
 	}
 }
@@ -98,7 +105,7 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
 	std::cout << "Using " << threadNum << " threads" << std::endl;
 	// Now spawn the threads and go
 	if (policy == 0){
-		sequentialWavefront(M, N);
+		sequentialWavefront(M, N, tileSize);
 	} else if (policy == 1){ // block policy
 		blockWavefront(M, N, threadNum, tileSize);
 	} else if (policy == 2){ // cyclic policy

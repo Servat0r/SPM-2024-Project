@@ -92,10 +92,16 @@ uint64_t getTotalDiagonalSize(uint64_t numTiles, uint64_t tileSize, uint64_t N, 
 	return totalDiagonalSize;
 }
 
-void sequentialWavefront(std::vector<double> &M, const uint64_t &N) {
-	for(uint64_t k = 1; k< N; ++k) {        // for each upper diagonal
-		for(uint64_t i = 0; i< (N-k); ++i) {// for each elem. in the diagonal
-			work(k, i, M, N);
+void sequentialWavefront(std::vector<double> &M, const uint64_t &N, const uint64_t tileSize) {
+	for (uint64_t K = 0; K < N; K += tileSize){
+		uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
+		uint64_t pos = 0;
+		for (uint64_t i = 0; i < numTiles; i++){
+			minX = tileSize * i;
+			minY = minX + K;
+			maxX = std::min(minX + tileSize - 1, N - 1);
+			maxY = std::min(minY + tileSize - 1, N - 1);
+			pos = tileWork(minX, minY, maxX, maxY, M, N, K, computedData, pos);
 		}
 	}
 }
@@ -238,7 +244,7 @@ int main(int argc, char* argv[]){
 	if (myid == 0){
 		output_file.open(filename, std::ios_base::app);
 		if (policy == 0){
-			sequentialWavefront(M, N);
+			sequentialWavefront(M, N, tileSize);
 		} else if (policy == 1){
 			serverTask(M, N, nworkers, tileSize);
 		}
