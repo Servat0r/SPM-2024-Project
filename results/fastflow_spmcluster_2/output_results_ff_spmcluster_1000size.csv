@@ -1,4 +1,4 @@
-N,nworkers,policy,tileSize,chunkSize,time
+N,nworkers,policy,tileSize,chunkSize,time,checksum
 1000,1,0,1,128,242.948,100135
 1000,1,0,4,128,243.091,100135
 1000,1,0,8,128,243.023,100135

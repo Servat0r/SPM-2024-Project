@@ -2,7 +2,7 @@
 
 # Define parameter ranges or lists
 policy_list=(1 2 3)
-ntasks_list=(1 2 4 6 8 10 12 14 16) # Number of tasks + frontend task
+ntasks_list=(20 24 28 32) # Number of tasks + frontend task
 tileSize_list=(1 4 8)
 chunkSize_list=(128)
 

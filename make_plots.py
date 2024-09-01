@@ -21,7 +21,7 @@ def select_speedup_data(
             (df['N'] == N) &
             (df['tileSize'] == tileSize) &
             (df['policy'] == policy) &
-            (df['nworkers'] > 1)
+            (df['nworkers'] > 0)
         ]
         if policy == 3:
             filtered_parallel_df = filtered_parallel_df[filtered_parallel_df['chunkSize'] == chunkSize]
@@ -30,7 +30,7 @@ def select_speedup_data(
     if sequential_time is None:
         filtered_sequential_df = df[
             (df['N'] == N) &
-            (df['tileSize'] == 1) &
+            (df['tileSize'] == tileSize) &
             (df['policy'] == 0)
         ]
         if drop_columns:
@@ -51,7 +51,7 @@ def select_speedup_data(
         if 'MPITime' in filtered_parallel_df:
             filtered_parallel_df = filtered_parallel_df.drop(columns=['MPITime'])
     speedup_df = filtered_parallel_df
-    speedup_df.loc[len(speedup_df)] = {'nworkers': 1, 'time': sequential_time}
+    #speedup_df.loc[len(speedup_df)] = {'nworkers': 1, 'time': sequential_time}
     speedup_df = speedup_df.sort_values(by='nworkers')
     speedup_df['speedup'] = speedup_df['time'].apply(lambda x : sequential_time / x)
     return speedup_df
@@ -225,11 +225,15 @@ def make_comparison_plot(
         ylabel: str, title: str, xticks: list = None, yticks: list = None,
         show: bool = False, save: bool = True, savepath: str = None
 ):
+    field_dict = {}
     for value in df_dict.values():
-        df = value[[x]]
+        field_dict[x] = list(value[x])
+        #df = value[[x]]
         break
     for key, value in df_dict.items():
-        df[key] = value[y]
+        field_dict[key] = list(value[y])
+        #df[key] = value[y]
+    df = pd.DataFrame(field_dict)
     df.plot(kind=kind, x=x, xlabel=xlabel, ylabel=ylabel, title=title, xticks=xticks, yticks=yticks)
     if save:
         plt.savefig(savepath)
