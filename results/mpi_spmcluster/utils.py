@@ -22,6 +22,6 @@ def compare_over_nodes(N, nworkers_per_node, tileSize):
         seq_base_df = pd.DataFrame()
     for nodes, df in dfs.items():
         nworkers = nodes * nworkers_per_node
-        new_df = dfs[nodes][(dfs[nodes]['nworkers'] == nworkers) & (dfs[nodes]['tileSize'] == tileSize)][['nworkers', 'time']]
+        new_df = df[(df['nworkers'] == nworkers) & (df['tileSize'] == tileSize)][['nworkers', 'time']]
         seq_base_df = pd.concat([seq_base_df, new_df])
     return seq_base_df

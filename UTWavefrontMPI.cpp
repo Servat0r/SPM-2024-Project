@@ -53,6 +53,20 @@ uint64_t tileWork(uint64_t minX, uint64_t minY, uint64_t maxX, uint64_t maxY,
 	return pos;
 }
 
+uint64_t sequentialTileWork(uint64_t minX, uint64_t minY, uint64_t maxX, uint64_t maxY,
+	std::vector<double> &M, const uint64_t &N, uint64_t K){
+	/* Work for a rectangular |maxX - minX + 1| * |maxY - minY + 1| tile */
+	double value;
+	for (int i = maxX; i >= (int)minX; i--){
+		for (uint64_t j = minY; j <= maxY; j++){
+			int k = K - (i - minX) + (j - minY);
+			if (k >= 1){
+				value = work((uint64_t)k, (uint64_t)i, M, N);
+			}
+		}
+	}
+}
+
 void unpackData(
 	std::vector<double> &M, const uint64_t &N,
 	uint64_t start, uint64_t end, uint64_t tileSize,
@@ -96,12 +110,13 @@ void sequentialWavefront(std::vector<double> &M, const uint64_t &N, const uint64
 	for (uint64_t K = 0; K < N; K += tileSize){
 		uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
 		uint64_t pos = 0;
+		uint64_t minX, maxX, minY, maxY;
 		for (uint64_t i = 0; i < numTiles; i++){
 			minX = tileSize * i;
 			minY = minX + K;
 			maxX = std::min(minX + tileSize - 1, N - 1);
 			maxY = std::min(minY + tileSize - 1, N - 1);
-			pos = tileWork(minX, minY, maxX, maxY, M, N, K, computedData, pos);
+			sequentialTileWork(minX, minY, maxX, maxY, M, N, K);
 		}
 	}
 }

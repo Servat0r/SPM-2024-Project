@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # Define parameter ranges or lists
-policy_list=(1 2 3)
-ntasks_list=(20 24 28 32) # Number of tasks + frontend task
-tileSize_list=(1 4 8)
+policy_list=(1)
+#ntasks_list=(1 2 4 6 8 10 12 14 16 20 24 28 32) # Number of tasks + frontend task
+ntasks_list=(24 28 32)
+#tileSize_list=(1 4 8)
+tileSize_list=(1)
 chunkSize_list=(128)
 
 read -p "Enter the size of the matrix to use: " N

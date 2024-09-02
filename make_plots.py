@@ -235,6 +235,7 @@ def make_comparison_plot(
         #df[key] = value[y]
     df = pd.DataFrame(field_dict)
     df.plot(kind=kind, x=x, xlabel=xlabel, ylabel=ylabel, title=title, xticks=xticks, yticks=yticks)
+    plt.grid(True, linestyle='--')
     if save:
         plt.savefig(savepath)
     if show:
