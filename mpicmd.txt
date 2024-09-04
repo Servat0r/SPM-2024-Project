@@ -1,2 +1,2 @@
-mpirun -N 16 ./UTWBPWMPI 2000 128
+mpirun -N 16 ./UTWavefrontMPI 2000 1 0 1 output_results_mpi_spmcluster_seq.csv
 mpicxx -Wall -O3 -I ./include UTWavefrontMPI.cpp -o UTWavefrontMPI

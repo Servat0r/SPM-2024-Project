@@ -1,7 +1,7 @@
 CXX               ?= g++
 MPICXX			   = mpicxx
 OPTFLAGS	   	   = -O3
-CXXFLAGS          += -std=c++20 -Wall 
+CXXFLAGS          += -std=c++20 -Wall -fsanitize=undefined -fsanitize=float-divide-by-zero
 INCLUDES	   	   = -I. -I./include -I./fastflow -I./cereal -I./openmpi-5.0.3 -I./sciplot -I./gnuplot-palettes
 LIBS               = -pthread -latomic
 SOURCES            = $(wildcard *.cpp)

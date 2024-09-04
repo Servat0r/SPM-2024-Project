@@ -25,3 +25,54 @@ def compare_over_nodes(N, nworkers_per_node, tileSize):
         new_df = df[(df['nworkers'] == nworkers) & (df['tileSize'] == tileSize)][['nworkers', 'time']]
         seq_base_df = pd.concat([seq_base_df, new_df])
     return seq_base_df
+
+def compare_over_fixed_nodes(nnodes, tileSize):
+    sizes = [1000, 2000, 4000, 6000, 8000, 10000]
+    dfs = {
+        N: get_dataframe(f"output_results_mpi_spmcluster_{N}size_{nnodes}nodes.csv") for N in sizes
+    }
+    dfs = {
+        N: df[df['tileSize'] == tileSize][['nworkers', 'time']] for N, df in dfs.items()
+    }
+    vals = {}
+    workers_set = False
+    for N, df in dfs.items():
+        if not workers_set:
+            vals['nworkers'] = list(df['nworkers'])
+            workers_set = True
+        vals[str(N)] = list(df['time'])
+    #for N, val in vals.items():
+    #    print(f"{N} => {val}")
+    df = pd.DataFrame(vals)
+    return df
+
+def scalability_over_sizes_fixed_wpn(nworkers_per_node, tileSize):
+    base_dfs = {
+        N: compare_over_nodes(N, nworkers_per_node, tileSize) for N in [1000, 2000, 4000, 6000, 8000, 10000]
+    }
+    df_dict = {'nworkers': [nworkers_per_node * item for item in [1, 2, 4, 8]]}
+    if nworkers_per_node > 1:
+        df_dict['nworkers'] = [1] + df_dict['nworkers']
+    for N, df in base_dfs.items():
+        df_dict[str(N)] = list(df['time'])
+    for key, vals in df_dict.items():
+        print(f"{key} => {vals}")
+    df = pd.DataFrame(df_dict)
+    scal_df = df.iloc[0] / df
+    scal_df['nworkers'] = df_dict['nworkers']
+    eff_df = scal_df.copy()
+    for i in range(len(eff_df)):
+        eff_df.iloc[i] = eff_df.iloc[i] / df_dict['nworkers'][i] * 100
+    eff_df['nworkers'] = df_dict['nworkers']
+    return df, scal_df, eff_df
+
+def scalability_over_sizes_fixed_nodes(nnodes, tileSize):
+    df = compare_over_fixed_nodes(nnodes, tileSize)
+    nworkers = list(df['nworkers'])
+    scal_df = df.iloc[0] / df
+    scal_df['nworkers'] = nworkers
+    eff_df = scal_df.copy()
+    for i in range(len(eff_df)):
+        eff_df.iloc[i] = eff_df.iloc[i] / nworkers[i] * 100
+    eff_df['nworkers'] = nworkers
+    return df, scal_df, eff_df

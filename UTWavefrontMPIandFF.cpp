@@ -9,6 +9,8 @@
 #include <cassert>
 #include <sstream>
 #include <string>
+#include <ff/ff.hpp>
+#include <ff/parallel_for.hpp>
 #include "hpc_helpers.hpp"
 #include "utils.hpp"
 #include "mpi.h"
@@ -119,7 +121,7 @@ uint64_t getTotalDiagonalSize(uint64_t numTiles, uint64_t tileSize, uint64_t N, 
 
 void sequentialWavefront(std::vector<double> &M, const uint64_t &N, const uint64_t &tileSize) {
 	for (uint64_t K = 0; K < N; K += tileSize){
-		//std::cout << "Sequential front with K = " << K << std::endl;
+		std::cout << "Sequential front with K = " << K << std::endl;
 		uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
 		uint64_t pos = 0;
 		uint64_t minX, maxX, minY, maxY;
@@ -139,14 +141,14 @@ int main(int argc, char* argv[]){
 	bool debug = false;
     uint64_t chunkSize = 8;
     
-	int myid, nworkers, namelen;
+	int myid, nnodes, namelen;
 	char processor_name[MPI_MAX_PROCESSOR_NAME];
 	double t0, t1;
 	struct timeval wt1, wt0;
     uint64_t N = argc > 1 ? std::stol(argv[1]) : 2000;
     uint64_t tileSize = argc > 2 ? std::stol(argv[2]) : 1;
 	uint64_t policy = argc > 3 ? std::stol(argv[3]) : 1; // Block Policy by default
-	uint64_t nnodes = argc > 4 ? std::stol(argv[4]) : 0;
+	uint64_t nworkers = argc > 4 ? std::stol(argv[4]) : 0;
 	std::string filename = argc > 5 ? argv[5] : "output_results_mpi.csv";
 	
 	// MPI_Wtime cannot be used here
@@ -154,10 +156,11 @@ int main(int argc, char* argv[]){
 	MPI_Init(&argc, &argv);	
 	t0 = MPI_Wtime();
 	
-	MPI_Comm_size(MPI_COMM_WORLD, &nworkers);
+	MPI_Comm_size(MPI_COMM_WORLD, &nnodes);
 	MPI_Comm_rank(MPI_COMM_WORLD, &myid);
 	MPI_Get_processor_name(processor_name, &namelen);
-	if (nnodes == 0) nnodes = (uint64_t)nworkers;
+	if (nworkers == 0) nworkers = (uint64_t)nnodes;
+	uint64_t nworkers_per_node = nworkers / (uint64_t)nnodes;
 	
 	// allocate the matrix
 	std::vector<double> M(N*N, 0.0);
@@ -171,19 +174,18 @@ int main(int argc, char* argv[]){
 	
 	init();
 
-	std::cout << "Created matrix ...\n";
-
-	auto workerTask = [&](std::vector<double> &M, const uint64_t &N, uint64_t nworkers, long tileSize, int myid){
+	auto workerTask = [&](std::vector<double> &M, const uint64_t &N, uint64_t nnodes, uint64_t nworkers_per_node, long tileSize, int myid){
 		for (uint64_t K = 0; K < N; K += tileSize){
 			uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
-			uint64_t baseBlockSize = numTiles / (nworkers - 1);
+			uint64_t baseBlockSize = numTiles / (nnodes - 1);
 			if (baseBlockSize == 0) baseBlockSize = 1;
 			uint64_t start = (myid - 1) * baseBlockSize; // start block
 			uint64_t end; // end block
-			if (myid + 1 < (int)nworkers)
+			if (myid + 1 < (int)nnodes)
 				end = std::min((myid) * baseBlockSize, numTiles);
 			else
 				end = numTiles;
+			// TODO UP TO HERE!
 			if (start < end){
 				uint64_t minX, minY, maxX, maxY;
 				uint64_t actualTileSize = 0;
@@ -271,9 +273,7 @@ int main(int argc, char* argv[]){
 
 	std::ofstream output_file;
 	if (myid == 0){
-		std::cout << "Opening file ...\n";
 		output_file.open(filename, std::ios_base::app);
-		std::cout << "Starting...\n";
 		if (policy == 1){
 			serverTask(M, N, nworkers, tileSize);
 		} else if (policy == 0){
@@ -282,18 +282,15 @@ int main(int argc, char* argv[]){
 				(2 * nworkers) + 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE
 			);
 		}
-		std::cout << "Ended ...\n";
 	} else {
 		if (policy == 1){
 			workerTask(M, N, nworkers, tileSize, myid);
 		} else if (policy == 0){
-			if (myid == 1){
-				sequentialWavefront(M, N, tileSize);
-				MPI_Send(
-					M.data(), N*N, MPI_DOUBLE, 0,
-					(2 * nworkers) + 1, MPI_COMM_WORLD
-				);
-			}
+			sequentialWavefront(M, N, tileSize);
+			MPI_Send(
+				M.data(), N*N, MPI_DOUBLE, 0,
+				(2 * nworkers) + nworkers + 1, MPI_COMM_WORLD
+			);
 		}
 	}
 
