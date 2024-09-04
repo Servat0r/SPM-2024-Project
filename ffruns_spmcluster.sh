@@ -15,7 +15,7 @@ for policy in "${policy_list[@]}"; do
         for tileSize in "${tileSize_list[@]}"; do
             for chunkSize in "${chunkSize_list[@]}"; do
                 echo "Running with parameters: N=$N, policy=$policy, ntasks=$ntasks, tileSize=$tileSize, chunkSize=$chunkSize"
-                ./UTWavefrontFF.o $N $policy $tileSize $ntasks $chunkSize output_results_ff_spmcluster_${N}size.csv
+                srun --nodes 1 ./UTWavefrontFF $N $policy $tileSize $ntasks $chunkSize 16 output_results_ff_spmcluster_${N}size.csv
                 if [ $? -ne 0 ]; then
                     echo "An error occurred with parameters: N=$N, policy=$policy, nnodes=$nnodes, ntasks=$ntasks, tileSize=$tileSize, chunkSize=$chunkSize"
                     read -p "Continue execution (y/n)?" cont

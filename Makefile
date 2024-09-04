@@ -1,6 +1,6 @@
 CXX               ?= g++
 MPICXX			   = mpicxx
-OPTFLAGS	   	   = -O3 -march=native
+OPTFLAGS	   	   = -O3
 CXXFLAGS          += -std=c++20 -Wall 
 INCLUDES	   	   = -I. -I./include -I./fastflow -I./cereal -I./openmpi-5.0.3 -I./sciplot -I./gnuplot-palettes
 LIBS               = -pthread -latomic

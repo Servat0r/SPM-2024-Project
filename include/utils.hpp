@@ -23,8 +23,9 @@ void printVector(const std::vector<T>& vec, const char* formatString = NULL) {
 }
 
 template <typename T>
-void displayVectorMatrix(std::vector<T> &M, const uint64_t &N){
-	for (uint64_t i = 0; i < N; i++){
+void displayVectorMatrix(std::vector<T> &M, const uint64_t &N, uint64_t start_row = 0, uint64_t end_row = 0){
+    if (end_row == 0) end_row = N;
+	for (uint64_t i = start_row; i < std::min(N, end_row); i++){
 		for (uint64_t j = 0; j < N; j++)
 			std::printf("%.4f  ", M[i*N+j]);
 		std::cout << std::endl;
