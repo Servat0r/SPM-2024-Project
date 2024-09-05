@@ -18,7 +18,7 @@ echo "Using a matrix of size $N ..."
 # Sequential Runs
 for tileSize in "${tileSize_list[@]}"; do
     echo "Sequential run with parameters: N=$N, ntasks=1, tileSize=$tileSize"
-    srun --nodes 1 ./UTWavefrontFF $N 0 $tileSize 1 128 $MAXWORKERS output_results_ff_spmnuma_${N}size.csv
+    ./UTWavefrontFF $N 0 $tileSize 1 128 $MAXWORKERS output_results_ff_spmnuma_${N}size.csv
     if [ $? -ne 0 ]; then
         echo "An error occurred with parameters: N=$N, policy=0, nnodes=1, ntasks=1, tileSize=$tileSize, chunkSize=128"
         read -p "Continue execution (y/n)?" cont
