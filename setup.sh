@@ -13,7 +13,7 @@ git clone "$FASTFLOW_REPO"
 # Download openmpi-5.0.3
 echo "Downloading OpenMPI 5.0.3 ..."
 OPENMPI_URL="https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-5.0.3.tar.gz"
-wget -O "openmpi-5.0.3.tar.gz" "$OPENMPI_URL"
+wget -O "openmpi-5.0.3.tar.gz" "https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-5.0.3.tar.gz"
 
 # Extract openmpi-5.0.3
 echo "Extracting OpenMPI 5.0.3 ..."
