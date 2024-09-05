@@ -40,15 +40,10 @@ uint64_t tileWork(uint64_t minX, uint64_t minY, uint64_t maxX, uint64_t maxY,
 	std::vector<double> &M, const uint64_t &N, uint64_t K, std::vector<double> &computedData, uint64_t pos){
 	/* Work for a rectangular |maxX - minX + 1| * |maxY - minY + 1| tile */
 	double value;
-	for (uint64_t i = maxX; i >= minX; i--){
+	for (int i = maxX; i >= (int)minX; i--){
 		for (uint64_t j = minY; j <= maxY; j++){
-			uint64_t i_offset = i - minX;
-			uint64_t j_offset = j - minY;
-			if (i_offset > j_offset){
-				if (K + j_offset < i_offset) continue; 
-			}
-			uint64_t k = K - i_offset + j_offset;
-			if (k >= 1 && k < N){
+			int k = K - (i - minX) + (j - minY);
+			if (k >= 1){
 				value = work((uint64_t)k, (uint64_t)i, M, N);
 				computedData[pos] = value;
 				pos++;
@@ -62,19 +57,13 @@ void sequentialTileWork(uint64_t minX, uint64_t minY, uint64_t maxX, uint64_t ma
 	std::vector<double> &M, const uint64_t &N, uint64_t K){
 	/* Work for a rectangular |maxX - minX + 1| * |maxY - minY + 1| tile */
 	double value;
-	for (uint64_t i = maxX; i >= minX; i--){
+	for (int i = maxX; i >= (int)minX; i--){
 		for (uint64_t j = minY; j <= maxY; j++){
-			uint64_t i_offset = i - minX;
-			uint64_t j_offset = j - minY;
-			if (i_offset > j_offset){
-				if (K + j_offset < i_offset) continue; 
-			}
-			uint64_t k = K - i_offset + j_offset;
-			if (k >= 1 && k < N){
+			int k = K - (i - minX) + (j - minY);
+			if (k >= 1){
 				value = work((uint64_t)k, (uint64_t)i, M, N);
 			}
 		}
-		if (i == 0) break;
 	}
 }
 
@@ -117,9 +106,8 @@ uint64_t getTotalDiagonalSize(uint64_t numTiles, uint64_t tileSize, uint64_t N, 
 	return totalDiagonalSize;
 }
 
-void sequentialWavefront(std::vector<double> &M, const uint64_t &N, const uint64_t &tileSize) {
+void sequentialWavefront(std::vector<double> &M, const uint64_t &N, const uint64_t tileSize) {
 	for (uint64_t K = 0; K < N; K += tileSize){
-		//std::cout << "Sequential front with K = " << K << std::endl;
 		uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
 		uint64_t pos = 0;
 		uint64_t minX, maxX, minY, maxY;
@@ -128,7 +116,7 @@ void sequentialWavefront(std::vector<double> &M, const uint64_t &N, const uint64
 			minY = minX + K;
 			maxX = std::min(minX + tileSize - 1, N - 1);
 			maxY = std::min(minY + tileSize - 1, N - 1);
-			if (minX < N and minY < N) sequentialTileWork(minX, minY, maxX, maxY, M, N, K);
+			sequentialTileWork(minX, minY, maxX, maxY, M, N, K);
 		}
 	}
 }
@@ -170,8 +158,6 @@ int main(int argc, char* argv[]){
 	};
 	
 	init();
-
-	std::cout << "Created matrix ...\n";
 
 	auto workerTask = [&](std::vector<double> &M, const uint64_t &N, uint64_t nworkers, long tileSize, int myid){
 		for (uint64_t K = 0; K < N; K += tileSize){
@@ -271,29 +257,27 @@ int main(int argc, char* argv[]){
 
 	std::ofstream output_file;
 	if (myid == 0){
-		std::cout << "Opening file ...\n";
 		output_file.open(filename, std::ios_base::app);
-		std::cout << "Starting...\n";
 		if (policy == 1){
 			serverTask(M, N, nworkers, tileSize);
-		} else if (policy == 0){
-			MPI_Recv(
-				M.data(), N*N, MPI_DOUBLE, 1,
-				(2 * nworkers) + 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE
-			);
 		}
-		std::cout << "Ended ...\n";
 	} else {
 		if (policy == 1){
 			workerTask(M, N, nworkers, tileSize, myid);
-		} else if (policy == 0){
-			if (myid == 1){
-				sequentialWavefront(M, N, tileSize);
-				MPI_Send(
-					M.data(), N*N, MPI_DOUBLE, 0,
-					(2 * nworkers) + 1, MPI_COMM_WORLD
-				);
-			}
+		}
+	}
+	if (policy == 0){
+		if (myid == 0){
+			MPI_Recv(
+				M.data(), (int)(N*N), MPI_DOUBLE, 1,
+				0, MPI_COMM_WORLD, MPI_STATUS_IGNORE
+			);
+		} else if (myid == 1){
+			sequentialWavefront(M, N, tileSize);
+			MPI_Send(
+				M.data(), (int)(N*N), MPI_DOUBLE, 0,
+				0, MPI_COMM_WORLD
+			);
 		}
 	}
 
@@ -308,7 +292,7 @@ int main(int argc, char* argv[]){
 		std::cout << "Total time       " << myid << " is " << diffmsec(wt1,wt0) << " (ms)\n";
 		uint64_t checksum = computeChecksum(M, N);
 		std::cout << checksum << std::endl;
-		output_file << N << "," << policy << "," << nnodes << "," << nworkers << "," << tileSize << "," 
+		output_file << N << "," << policy << "," << nnodes << "," << nworkers - 1 << "," << tileSize << "," 
 			<< 1000.0*(t1-t0) << "," << diffmsec(wt1,wt0) << "," << checksum << std::endl;
 	}
 	return 0;

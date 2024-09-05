@@ -13,20 +13,16 @@ echo "Using a matrix of size $N ..."
 
 # Loop over all combinations of parameters
 for policy in "${policy_list[@]}"; do
-    #salloc --nodes $nnodes
-    #echo "Using job id ${SLURM_JOB_ID} ..."
     for ntasks in "${ntasks_list[@]}"; do
         if [ "$ntasks" -ge "$nnodes" ]; then
             if (( ntasks <= 16 * nnodes + 1)); then
                 for tileSize in "${tileSize_list[@]}"; do
                     echo "Running with parameters: N=$N, nnodes=$nnodes, ntasks=$ntasks, tileSize=$tileSize"
                     srun --mpi=pmix --nodes $nnodes --ntasks $ntasks -e spmcluster_mpi_err.log ./UTWavefrontMPI $N $tileSize $policy $nnodes output_results_mpi_spmcluster_${N}size_${nnodes}nodes.csv
-                    #mpirun -N $ntasks ./UTWavefrontMPI $N $tileSize $policy $nnodes output_results_mpi_spmcluster_${N}_${nnodes}nodes.csv
                     if [ $? -ne 0 ]; then
                         echo "An error occurred with parameters: N=$N, nnodes=$nnodes, ntasks=$ntasks, tileSize=$tileSize"
                         read -p "Continue execution (y/n)?" cont
                         if [ "$cont" == "n" ]; then
-                            #scancel "${SLURM_JOB_ID}"
                             break 3  # Only for bash 4 or above
                         fi
                     fi

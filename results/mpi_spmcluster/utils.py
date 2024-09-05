@@ -76,3 +76,23 @@ def scalability_over_sizes_fixed_nodes(nnodes, tileSize):
         eff_df.iloc[i] = eff_df.iloc[i] / nworkers[i] * 100
     eff_df['nworkers'] = nworkers
     return df, scal_df, eff_df
+
+def weak_scalability(nworkers_per_node, tileSize):
+    sizes = [1000, 2000, 4000, 8000]
+    nodes = [1, 2, 4, 8]
+    workers = [nworkers_per_node * nnodes for nnodes in nodes]
+    df_ws = pd.DataFrame()
+    for N, nnodes, nworkers in zip(sizes, nodes, workers):
+        df = get_dataframe(f"output_results_mpi_spmcluster_{N}size_{nnodes}nodes.csv")
+        df = df[(df['policy'] == 1) & (df['tileSize'] == tileSize) & (df['nworkers'] == nworkers)]
+        df_ws = pd.concat([df_ws, df])[['N', 'nworkers', 'time']]
+    df_ws['scalability'] = df_ws['time'] / (df_ws['nworkers']**2)
+    return df_ws
+
+def weak_scalability_comparison(tileSize):
+    df_dict = {'N': [1000, 2000, 4000, 8000]}
+    for nworkers_per_node in [1, 2, 4, 8]:
+        df_ws = weak_scalability(nworkers_per_node, tileSize)
+        df_dict[str(nworkers_per_node)] = list(df_ws['time'])
+    df = pd.DataFrame(df_dict)
+    return df
