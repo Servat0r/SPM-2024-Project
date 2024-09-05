@@ -7,7 +7,12 @@ tileSize_list=(1 4 8)
 chunkSize_list=(128)
 MAXWORKERS=16 # Maximum amount of spawnable workers
 
-read -p "Enter the size of the matrix to use: " N
+if [ $# -lt 1 ]; then
+  echo "Usage: ffruns_spmcluster.sh N"
+  exit 1
+fi
+
+N=$1
 echo "Using a matrix of size $N ..."
 
 # Sequential Runs

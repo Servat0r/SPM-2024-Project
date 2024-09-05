@@ -5,11 +5,16 @@ policy_list=(1)
 ntasks_list=(2 3 5 9 11 13 17 21 25 33 49 65) # Number of tasks + frontend task
 tileSize_list=(1 4 8 16)
 
-read -p "Enter the number of nodes to use: " nnodes
-echo "Using $nnodes nodes ..."
+if [ $# -lt 2 ]; then
+  echo "Usage: mpiruns.sh N nnodes"
+  exit 1
+fi
 
-read -p "Enter the size of the matrix to use: " N
+N=$1
 echo "Using a matrix of size $N ..."
+
+nnodes=$2
+echo "Using $nnodes nodes ..."
 
 # Loop over all combinations of parameters
 for policy in "${policy_list[@]}"; do

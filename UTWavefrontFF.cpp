@@ -14,8 +14,9 @@
 #include "utils.hpp"
 
 using namespace ff;
-#define MAXWORKERS 16
+#define MAXWORKERS 16 // Max allowed workers for ParallelFor
 
+// Working function
 void work(uint64_t k, uint64_t i, std::vector<double> &M, const uint64_t &N){
 	double sum = 0.0;
 	uint64_t j1 = i;
@@ -27,6 +28,8 @@ void work(uint64_t k, uint64_t i, std::vector<double> &M, const uint64_t &N){
 	}
 }
 
+// work function computed across a given tile delimited by coordinates: [minX, maxX] x [minY, maxY]
+// X = rows, Y = columns
 void tileWork(uint64_t minX, uint64_t minY, uint64_t maxX, uint64_t maxY,
 	std::vector<double> &M, const uint64_t &N, uint64_t K){
 	for (uint64_t i = maxX; i >= minX; i--){
@@ -43,6 +46,7 @@ void tileWork(uint64_t minX, uint64_t minY, uint64_t maxX, uint64_t maxY,
 	}
 }
 
+// Sequential version
 void sequentialWavefront(std::vector<double> &M, const uint64_t &N, const uint64_t tileSize) {
 	for (uint64_t K = 0; K < N; K += tileSize){
 		uint64_t numTiles = (N - K + tileSize - 1) / tileSize;
@@ -58,12 +62,10 @@ void sequentialWavefront(std::vector<double> &M, const uint64_t &N, const uint64
 	}
 }
 
+// Main body loop
 void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
 	uint64_t tileSize, const std::string& filename, uint64_t maxworkers){
 	
-	// Create the barrier
-	std::barrier syncPoint(threadNum, [](){ });
-
 	// allocate the matrix
 	std::vector<double> M(N*N, 0.0);
 
@@ -101,11 +103,11 @@ void run(uint64_t N, uint64_t threadNum, uint64_t policy, uint64_t chunkSize,
 	auto blockWavefront = [&](std::vector<double> &M, const uint64_t &N,
 		uint64_t nworkers, uint64_t tileSize){ task(M, N, nworkers, 0, tileSize); };
 	
-	// Cyclic distribution policy along (possibly tiled) diagonals
+	// Cyclic distribution policy along a (possibly tiled) diagonal
 	auto cyclicWavefront = [&](std::vector<double> &M, const uint64_t &N,
 		uint64_t nworkers, uint64_t tileSize){ task(M, N, nworkers, 1, tileSize); };
 	
-	// Block Cyclic distribution policy along (possibly tiled) diagonals
+	// Block Cyclic distribution policy along a (possibly tiled) diagonal
 	auto blockCyclicWavefront = [&](std::vector<double> &M, const uint64_t &N,
 		uint64_t nworkers, uint64_t tileSize, uint64_t chunkSize){ task(M, N, nworkers, chunkSize, tileSize); };
 	

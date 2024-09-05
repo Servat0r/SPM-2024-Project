@@ -17,14 +17,15 @@ MPI_TARGET        = $(patsubst %.cpp,mpi_%, $(MPI_SOURCES))
 help:
 	@echo "Usage: make <command> <arguments>"
 	@echo "Commands: "
-	@echo "- help: shows this guide";
-	@echo "- all: compiles all Fastflow and MPI source files";
-	@echo "- all_ff: compiles all Fastflow source files";
-	@echo "- all_mpi: compiles all MPI source files";
-	@echo "- clean file=<filename>: removes the specified <filename>";
-	@echo "- cleanall: removes all executables";
+	@echo "- help: shows this guide"
+	@echo "- all: compiles all Fastflow and MPI source files"
+	@echo "- all_ff: compiles all Fastflow source files"
+	@echo "- all_mpi: compiles all MPI source files"
+	@echo "- clean file=<filename>: removes the specified <filename>";ù
+	@echo "- cleanall: removes all executables"
 	@echo "- <filename>: compiles the given file <filename>, assuming by default to be a Fastflow source with g++";
 	@echo "- mpi_<filename>: compiles the given MPI source file <filename> with mpicxx"
+	@echo "- mpi file=<filename>: compiles the given MPI source file <filename> with mpicxx"
 
 all: all_ff all_mpi
 

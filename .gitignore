@@ -1,8 +1,8 @@
 
 *.out
 *.o
-UTWBPW
-UTWBPWBlockBased
+UTWavefrontFF
+UTWavefrontMPI
 cereal/*
 fastflow/*
 openmpi-5.0.3/*
